@@ -18,7 +18,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hirsch Music Hit Maker</title>
-<meta name="description" content="Interaktives Musik-Dashboard mit 500 Songs pro Genre für Rock, Pop, Hip-Hop, Metal, Country, EDM und Schlager.">
+<meta name="description" content="Interaktives Musik-Dashboard mit 9000 Songs in 18 Genres: Rock, Pop, Hip-Hop, Metal, Country, EDM, Schlager, Classical, Jazz, Blues, Folk, R&amp;B, Gospel, Latin, Reggae, World und Experimental.">
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -72,14 +72,24 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
 }
 
 /* ─── GENRE COLORS ───────────────────────────────────────────────────── */
-.gRock     { --gc:#f43f5e; --gb:rgba(244,63,94,.12); }
-.gPop      { --gc:#ec4899; --gb:rgba(236,72,153,.12); }
-.gHipHop   { --gc:#f59e0b; --gb:rgba(245,158,11,.12); }
-.gMetal    { --gc:#6366f1; --gb:rgba(99,102,241,.12); }
-.gCountry  { --gc:#10b981; --gb:rgba(16,185,129,.12); }
-.gEDM      { --gc:#06b6d4; --gb:rgba(6,182,212,.12); }
-.gSchlager { --gc:#f97316; --gb:rgba(249,115,22,.12); }
-.gAll      { --gc:#a855f7; --gb:rgba(168,85,247,.12); }
+.gRock         { --gc:#f43f5e; --gb:rgba(244,63,94,.12); }
+.gPop          { --gc:#ec4899; --gb:rgba(236,72,153,.12); }
+.gHipHop       { --gc:#f59e0b; --gb:rgba(245,158,11,.12); }
+.gMetal        { --gc:#6366f1; --gb:rgba(99,102,241,.12); }
+.gCountry      { --gc:#10b981; --gb:rgba(16,185,129,.12); }
+.gEDM          { --gc:#06b6d4; --gb:rgba(6,182,212,.12); }
+.gSchlager     { --gc:#f97316; --gb:rgba(249,115,22,.12); }
+.gAll          { --gc:#a855f7; --gb:rgba(168,85,247,.12); }
+.gClassical    { --gc:#8b5cf6; --gb:rgba(139,92,246,.12); }
+.gJazz         { --gc:#d97706; --gb:rgba(217,119,6,.12); }
+.gBlues        { --gc:#2563eb; --gb:rgba(37,99,235,.12); }
+.gFolk         { --gc:#65a30d; --gb:rgba(101,163,13,.12); }
+.gRnB          { --gc:#db2777; --gb:rgba(219,39,119,.12); }
+.gGospel       { --gc:#ea580c; --gb:rgba(234,88,12,.12); }
+.gLatin        { --gc:#dc2626; --gb:rgba(220,38,38,.12); }
+.gReggae       { --gc:#16a34a; --gb:rgba(22,163,74,.12); }
+.gWorld        { --gc:#0891b2; --gb:rgba(8,145,178,.12); }
+.gExperimental { --gc:#7c3aed; --gb:rgba(124,58,237,.12); }
 
 /* ─── LAYOUT ─────────────────────────────────────────────────────────── */
 .dash { display:grid; grid-template-columns:220px 1fr; grid-template-rows:auto 1fr; height:100dvh; }
@@ -463,58 +473,29 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
 .writer-header { flex-wrap:wrap; }
 .writer-actions { display:flex; align-items:center; gap:.5rem; margin-left:auto; }
 
-/* ─── UPDATE OVERLAY ─────────────────────────────────────────────────────── */
-#updateOverlay {
-  position: fixed; inset: 0; z-index: 99999;
-  background: rgba(0,0,0,.75); backdrop-filter: blur(8px);
-  display: none; align-items: center; justify-content: center;
-  animation: fadeIn .25s ease;
-}
-#updateOverlay.visible { display: flex; }
-.update-card {
-  background: #141416; border: 1px solid rgba(168,85,247,.4);
-  border-radius: 16px; padding: 2rem 2.25rem; max-width: 420px; width: 90%;
-  box-shadow: 0 24px 80px rgba(168,85,247,.25);
-  animation: slideUp .3s ease;
-}
-.update-icon { font-size: 2.25rem; margin-bottom: .75rem; }
-.update-title { font-family: 'Cabinet Grotesk',sans-serif; font-weight: 800;
-  font-size: 1.15rem; color: #e8e6f0; margin-bottom: .35rem; }
-.update-version { font-size: .78rem; color: #a855f7; font-weight: 600;
-  background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.25);
-  border-radius: 99px; display: inline-block; padding: .15rem .65rem; margin-bottom: .875rem; }
-.update-notes { font-size: .8rem; color: #9090b0; line-height: 1.6;
-  margin-bottom: 1.25rem; border-left: 2px solid rgba(168,85,247,.3); padding-left: .75rem; }
-.update-progress-wrap { margin-bottom: 1.25rem; }
-.update-progress-bar { height: 6px; background: rgba(168,85,247,.15);
-  border-radius: 99px; overflow: hidden; margin-top: .5rem; }
-.update-progress-fill { height: 100%; background: linear-gradient(90deg,#a855f7,#06b6d4);
-  border-radius: 99px; transition: width .3s ease; width: 0; }
-.update-progress-txt { font-size: .72rem; color: var(--txm); margin-top: .375rem;
-  display: flex; justify-content: space-between; }
-.update-actions { display: flex; gap: .625rem; }
-.btn-update-install { flex: 1; padding: .625rem 1rem; border: none;
-  border-radius: 10px; background: #a855f7; color: #fff; font-size: .82rem;
-  font-weight: 700; cursor: pointer; transition: all .2s; }
-.btn-update-install:hover { background: #9333ea; transform: translateY(-1px); }
-.btn-update-install:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.btn-update-later { padding: .625rem 1rem; border: 1px solid var(--border);
-  border-radius: 10px; background: transparent; color: var(--txm);
-  font-size: .82rem; cursor: pointer; transition: all .2s; }
-.btn-update-later:hover { background: var(--surfh); color: var(--tx); }
-
-/* Update-Status-Badge in Topbar */
-.update-badge { display:none; align-items:center; gap:.375rem; padding:.25rem .625rem;
-  border-radius:99px; background:rgba(168,85,247,.12); border:1px solid rgba(168,85,247,.3);
-  font-size:.7rem; font-weight:600; color:#a855f7; cursor:pointer; transition:all .2s; }
+/* ── UPDATE OVERLAY ── */
+#updateOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:9999; align-items:center; justify-content:center; }
+#updateOverlay.visible { display:flex; }
+.update-card { background:#1a1a2e; border:1px solid rgba(168,85,247,.3); border-radius:16px; padding:2rem; max-width:400px; width:90%; text-align:center; box-shadow:0 0 60px rgba(168,85,247,.2); }
+.update-icon { font-size:2.25rem; margin-bottom:.75rem; }
+.update-title { font-family:'Cabinet Grotesk',sans-serif; font-weight:800; font-size:1.25rem; color:#e0e0ff; margin-bottom:.375rem; }
+.update-version { font-size:.78rem; color:#a855f7; font-weight:600; margin-bottom:.75rem; }
+.update-notes { font-size:.8rem; color:#9090b0; line-height:1.6; margin-bottom:1.25rem; }
+.update-progress-wrap { margin-bottom:1.25rem; }
+.update-progress-bar { height:6px; background:rgba(168,85,247,.15); border-radius:3px; overflow:hidden; margin:.375rem 0; }
+.update-progress-fill { height:100%; background:linear-gradient(90deg,#a855f7,#06b6d4); border-radius:3px; transition:width .3s ease; width:0%; }
+.update-progress-txt { font-size:.72rem; color:var(--txm); margin-top:.375rem; display:flex; justify-content:space-between; }
+.update-actions { display:flex; gap:.625rem; }
+.btn-update-install { flex:1; padding:.625rem 1rem; border:none; border-radius:8px; background:#a855f7; color:#fff; font-weight:700; cursor:pointer; transition:all .2s; }
+.btn-update-install:hover { background:#9333ea; transform:translateY(-1px); }
+.btn-update-install:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.btn-update-later { padding:.625rem 1rem; border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--txm); cursor:pointer; transition:all .2s; }
+.btn-update-later:hover { background:var(--surfh); color:var(--tx); }
+.update-badge { display:none; align-items:center; gap:.375rem; padding:.25rem .625rem; border-radius:20px; background:rgba(168,85,247,.1); border:1px solid rgba(168,85,247,.25); color:#a855f7; font-size:.72rem; font-weight:600; cursor:pointer; transition:background .2s; }
 .update-badge:hover { background:rgba(168,85,247,.2); }
 .update-badge.visible { display:flex; }
-.update-badge-dot { width:6px;height:6px;border-radius:50%;background:#a855f7;
-  animation:pulse 1.5s infinite; }
-
-@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
-@keyframes pulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.update-badge-dot { width:6px;height:6px;border-radius:50%;background:#a855f7; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 </style>
 </head>
 <body>
@@ -549,7 +530,7 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
       <line x1="17.5" y1="13" x2="17.5" y2="9.5" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
       <line x1="17.5" y1="9.5" x2="20" y2="10.2" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
     </svg>
-    <div class="logo-text">Hirsch Music Hit Maker <span>Top 500+ · 8 Genres</span></div>
+    <div class="logo-text">Hirsch Music Hit Maker <span>Top 500+ · 18 Genres</span></div>
   </a>
 
   <div class="sb-sec">
@@ -572,15 +553,25 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
     <div class="sb-lbl">Genres</div>
     <button class="gb gAll active" data-genre="all" onclick="setGenre('all',this)">
       <span class="gdot" style="background:var(--pr)"></span>
-      Alle Genres <span class="gcnt">4000</span>
+      Alle Genres <span class="gcnt">9000</span>
     </button>
-    <button class="gb gRock"     data-genre="Rock"     onclick="setGenre('Rock',this)"><span class="gdot"></span>Rock<span class="gcnt">500</span></button>
-    <button class="gb gPop"      data-genre="Pop"      onclick="setGenre('Pop',this)"><span class="gdot"></span>Pop<span class="gcnt">500</span></button>
-    <button class="gb gHipHop"   data-genre="Hip-Hop"  onclick="setGenre('Hip-Hop',this)"><span class="gdot"></span>Hip-Hop<span class="gcnt">500</span></button>
-    <button class="gb gMetal"    data-genre="Metal"    onclick="setGenre('Metal',this)"><span class="gdot"></span>Metal<span class="gcnt">500</span></button>
-    <button class="gb gCountry"  data-genre="Country"  onclick="setGenre('Country',this)"><span class="gdot"></span>Country<span class="gcnt">500</span></button>
-    <button class="gb gEDM"      data-genre="EDM"      onclick="setGenre('EDM',this)"><span class="gdot"></span>EDM<span class="gcnt">500</span></button>
-    <button class="gb gSchlager" data-genre="Schlager" onclick="setGenre('Schlager',this)"><span class="gdot"></span>Schlager<span class="gcnt">500</span></button>
+    <button class="gb gRock"         data-genre="Rock"         onclick="setGenre('Rock',this)"><span class="gdot"></span>Rock<span class="gcnt">500</span></button>
+    <button class="gb gPop"          data-genre="Pop"          onclick="setGenre('Pop',this)"><span class="gdot"></span>Pop<span class="gcnt">500</span></button>
+    <button class="gb gHipHop"       data-genre="Hip-Hop"      onclick="setGenre('Hip-Hop',this)"><span class="gdot"></span>Hip-Hop<span class="gcnt">500</span></button>
+    <button class="gb gMetal"        data-genre="Metal"        onclick="setGenre('Metal',this)"><span class="gdot"></span>Metal<span class="gcnt">500</span></button>
+    <button class="gb gCountry"      data-genre="Country"      onclick="setGenre('Country',this)"><span class="gdot"></span>Country<span class="gcnt">500</span></button>
+    <button class="gb gEDM"          data-genre="EDM"          onclick="setGenre('EDM',this)"><span class="gdot"></span>EDM<span class="gcnt">500</span></button>
+    <button class="gb gSchlager"     data-genre="Schlager"     onclick="setGenre('Schlager',this)"><span class="gdot"></span>Schlager<span class="gcnt">500</span></button>
+    <button class="gb gClassical"    data-genre="Classical"    onclick="setGenre('Classical',this)"><span class="gdot"></span>Classical<span class="gcnt">500</span></button>
+    <button class="gb gJazz"         data-genre="Jazz"         onclick="setGenre('Jazz',this)"><span class="gdot"></span>Jazz<span class="gcnt">500</span></button>
+    <button class="gb gBlues"        data-genre="Blues"        onclick="setGenre('Blues',this)"><span class="gdot"></span>Blues<span class="gcnt">500</span></button>
+    <button class="gb gFolk"         data-genre="Folk"         onclick="setGenre('Folk',this)"><span class="gdot"></span>Folk<span class="gcnt">500</span></button>
+    <button class="gb gRnB"          data-genre="R&amp;B"      onclick="setGenre('R&B',this)"><span class="gdot"></span>R&amp;B<span class="gcnt">500</span></button>
+    <button class="gb gGospel"       data-genre="Gospel"       onclick="setGenre('Gospel',this)"><span class="gdot"></span>Gospel<span class="gcnt">500</span></button>
+    <button class="gb gLatin"        data-genre="Latin"        onclick="setGenre('Latin',this)"><span class="gdot"></span>Latin<span class="gcnt">500</span></button>
+    <button class="gb gReggae"       data-genre="Reggae"       onclick="setGenre('Reggae',this)"><span class="gdot"></span>Reggae<span class="gcnt">500</span></button>
+    <button class="gb gWorld"        data-genre="World"        onclick="setGenre('World',this)"><span class="gdot"></span>World<span class="gcnt">500</span></button>
+    <button class="gb gExperimental" data-genre="Experimental" onclick="setGenre('Experimental',this)"><span class="gdot"></span>Experimental<span class="gcnt">500</span></button>
   </div>
 
   <div class="sb-sec">
@@ -596,7 +587,7 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
   </div>
 
   <div class="sb-stats">
-    <div class="sstat"><span class="sstat-l">Songs gesamt</span><span class="sstat-v" id="ss-total">4000</span></div>
+    <div class="sstat"><span class="sstat-l">Songs gesamt</span><span class="sstat-v" id="ss-total">9000</span></div>
     <div class="sstat"><span class="sstat-l">Ältester Song</span><span class="sstat-v" id="ss-old">1935</span></div>
     <div class="sstat"><span class="sstat-l">Neuester Song</span><span class="sstat-v" id="ss-new">2024</span></div>
   </div>
@@ -604,11 +595,6 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
 
 <!-- ── TOPBAR ────────────────────────────────────────────────────────── -->
 <header class="topbar">
-  <span id="appVersionBadge" style="font-size:.68rem;color:var(--txf);font-family:'Space Mono',monospace;margin-right:.5rem;display:none" id="appVersionBadge"></span>
-  <button id="topbarUpdateBadge" class="update-badge" onclick="reopenUpdateDialog && reopenUpdateDialog()">
-    <span class="update-badge-dot"></span>
-    Update verfügbar
-  </button>
   <button class="iBtn mob-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Menü">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -1102,17 +1088,30 @@ function showView(v) {
 <script src="data-edm.js"></script>
 <script src="data-schlager.js"></script>
 <script src="data-classics.js"></script>
+<script src="data-classical.js"></script>
+<script src="data-jazz.js"></script>
+<script src="data-blues.js"></script>
+<script src="data-folk.js"></script>
+<script src="data-rnb.js"></script>
+<script src="data-gospel.js"></script>
+<script src="data-latin.js"></script>
+<script src="data-reggae.js"></script>
+<script src="data-world.js"></script>
+<script src="data-experimental.js"></script>
 
 <script>
 // ─── INIT ────────────────────────────────────────────────────────────────────
 const ALL_SONGS = [
   ...SONGS_ROCK, ...SONGS_POP, ...SONGS_HIPHOP, ...SONGS_METAL,
-  ...SONGS_COUNTRY, ...SONGS_EDM, ...SONGS_SCHLAGER, ...SONGS_CLASSICS
+  ...SONGS_COUNTRY, ...SONGS_EDM, ...SONGS_SCHLAGER, ...SONGS_CLASSICS,
+  ...SONGS_CLASSICAL, ...SONGS_JAZZ, ...SONGS_BLUES, ...SONGS_FOLK,
+  ...SONGS_RNB, ...SONGS_GOSPEL, ...SONGS_LATIN, ...SONGS_REGGAE,
+  ...SONGS_WORLD, ...SONGS_EXPERIMENTAL
 ];
 
-const GENRES = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager'];
-const GC = { Rock:'#f43f5e', Pop:'#ec4899', 'Hip-Hop':'#f59e0b', Metal:'#6366f1', Country:'#10b981', EDM:'#06b6d4', Schlager:'#f97316' };
-const GCL = { Rock:'gRock', Pop:'gPop', 'Hip-Hop':'gHipHop', Metal:'gMetal', Country:'gCountry', EDM:'gEDM', Schlager:'gSchlager' };
+const GENRES = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager','Classical','Jazz','Blues','Folk','R&B','Gospel','Latin','Reggae','World','Experimental'];
+const GC = { Rock:'#f43f5e', Pop:'#ec4899', 'Hip-Hop':'#f59e0b', Metal:'#6366f1', Country:'#10b981', EDM:'#06b6d4', Schlager:'#f97316', Classical:'#8b5cf6', Jazz:'#d97706', Blues:'#2563eb', Folk:'#65a30d', 'R&B':'#db2777', Gospel:'#ea580c', Latin:'#dc2626', Reggae:'#16a34a', World:'#0891b2', Experimental:'#7c3aed' };
+const GCL = { Rock:'gRock', Pop:'gPop', 'Hip-Hop':'gHipHop', Metal:'gMetal', Country:'gCountry', EDM:'gEDM', Schlager:'gSchlager', Classical:'gClassical', Jazz:'gJazz', Blues:'gBlues', Folk:'gFolk', 'R&B':'gRnB', Gospel:'gGospel', Latin:'gLatin', Reggae:'gReggae', World:'gWorld', Experimental:'gExperimental' };
 const PAGE_SIZE = 100;
 
 let state = { genre:'all', era:'all', query:'', sort:'rank', page:1, filtered:[] };
@@ -1702,7 +1701,7 @@ function renderSongWriter(lyrics, blueprint, s1, s2) {
 }
 
 // ─── KI LYRICS API ───────────────────────────────────────────────────────────
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '__PORT_5000__';
+const API_BASE = '__PORT_5000__';
 
 async function fetchAILyrics(s1, s2, matchInfo, regenSeed) {
   try {
@@ -2038,7 +2037,6 @@ function openPlatform(name, e) {
   </div>
 </div>
 
-<!-- Update-Badge in Topbar (versteckt bis Update ready) -->
 <script>
 // ─── ELECTRON AUTO-UPDATE INTEGRATION ────────────────────────────────────────
 (function() {
@@ -2086,7 +2084,6 @@ function openPlatform(name, e) {
     btnInst.disabled        = false;
     btnInst.textContent     = '🔄 Jetzt neu starten & installieren';
     vBadge.textContent      = 'v' + data.version + ' — Bereit';
-    // Update-Badge in Topbar
     const badge = document.getElementById('topbarUpdateBadge');
     if (badge) badge.classList.add('visible');
   });
@@ -2100,7 +2097,6 @@ function openPlatform(name, e) {
   window.installUpdate  = () => window.electronAPI.installUpdate();
   window.postponeUpdate = () => {
     overlay.classList.remove('visible');
-    // Update-Badge zeigen damit User später installieren kann
     const badge = document.getElementById('topbarUpdateBadge');
     if (badge) badge.classList.add('visible');
   };

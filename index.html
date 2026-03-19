@@ -18,7 +18,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hirsch Music Hit Maker</title>
-<meta name="description" content="Interaktives Musik-Dashboard mit 500 Songs pro Genre für Rock, Pop, Hip-Hop, Metal, Country, EDM und Schlager.">
+<meta name="description" content="Interaktives Musik-Dashboard mit 9000 Songs in 18 Genres: Rock, Pop, Hip-Hop, Metal, Country, EDM, Schlager, Classical, Jazz, Blues, Folk, R&amp;B, Gospel, Latin, Reggae, World und Experimental.">
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -72,14 +72,24 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
 }
 
 /* ─── GENRE COLORS ───────────────────────────────────────────────────── */
-.gRock     { --gc:#f43f5e; --gb:rgba(244,63,94,.12); }
-.gPop      { --gc:#ec4899; --gb:rgba(236,72,153,.12); }
-.gHipHop   { --gc:#f59e0b; --gb:rgba(245,158,11,.12); }
-.gMetal    { --gc:#6366f1; --gb:rgba(99,102,241,.12); }
-.gCountry  { --gc:#10b981; --gb:rgba(16,185,129,.12); }
-.gEDM      { --gc:#06b6d4; --gb:rgba(6,182,212,.12); }
-.gSchlager { --gc:#f97316; --gb:rgba(249,115,22,.12); }
-.gAll      { --gc:#a855f7; --gb:rgba(168,85,247,.12); }
+.gRock         { --gc:#f43f5e; --gb:rgba(244,63,94,.12); }
+.gPop          { --gc:#ec4899; --gb:rgba(236,72,153,.12); }
+.gHipHop       { --gc:#f59e0b; --gb:rgba(245,158,11,.12); }
+.gMetal        { --gc:#6366f1; --gb:rgba(99,102,241,.12); }
+.gCountry      { --gc:#10b981; --gb:rgba(16,185,129,.12); }
+.gEDM          { --gc:#06b6d4; --gb:rgba(6,182,212,.12); }
+.gSchlager     { --gc:#f97316; --gb:rgba(249,115,22,.12); }
+.gAll          { --gc:#a855f7; --gb:rgba(168,85,247,.12); }
+.gClassical    { --gc:#8b5cf6; --gb:rgba(139,92,246,.12); }
+.gJazz         { --gc:#d97706; --gb:rgba(217,119,6,.12); }
+.gBlues        { --gc:#2563eb; --gb:rgba(37,99,235,.12); }
+.gFolk         { --gc:#65a30d; --gb:rgba(101,163,13,.12); }
+.gRnB          { --gc:#db2777; --gb:rgba(219,39,119,.12); }
+.gGospel       { --gc:#ea580c; --gb:rgba(234,88,12,.12); }
+.gLatin        { --gc:#dc2626; --gb:rgba(220,38,38,.12); }
+.gReggae       { --gc:#16a34a; --gb:rgba(22,163,74,.12); }
+.gWorld        { --gc:#0891b2; --gb:rgba(8,145,178,.12); }
+.gExperimental { --gc:#7c3aed; --gb:rgba(124,58,237,.12); }
 
 /* ─── LAYOUT ─────────────────────────────────────────────────────────── */
 .dash { display:grid; grid-template-columns:220px 1fr; grid-template-rows:auto 1fr; height:100dvh; }
@@ -496,7 +506,7 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
       <line x1="17.5" y1="13" x2="17.5" y2="9.5" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
       <line x1="17.5" y1="9.5" x2="20" y2="10.2" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
     </svg>
-    <div class="logo-text">Hirsch Music Hit Maker <span>Top 500+ · 8 Genres</span></div>
+    <div class="logo-text">Hirsch Music Hit Maker <span>Top 500+ · 18 Genres</span></div>
   </a>
 
   <div class="sb-sec">
@@ -519,15 +529,25 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
     <div class="sb-lbl">Genres</div>
     <button class="gb gAll active" data-genre="all" onclick="setGenre('all',this)">
       <span class="gdot" style="background:var(--pr)"></span>
-      Alle Genres <span class="gcnt">4000</span>
+      Alle Genres <span class="gcnt">9000</span>
     </button>
-    <button class="gb gRock"     data-genre="Rock"     onclick="setGenre('Rock',this)"><span class="gdot"></span>Rock<span class="gcnt">500</span></button>
-    <button class="gb gPop"      data-genre="Pop"      onclick="setGenre('Pop',this)"><span class="gdot"></span>Pop<span class="gcnt">500</span></button>
-    <button class="gb gHipHop"   data-genre="Hip-Hop"  onclick="setGenre('Hip-Hop',this)"><span class="gdot"></span>Hip-Hop<span class="gcnt">500</span></button>
-    <button class="gb gMetal"    data-genre="Metal"    onclick="setGenre('Metal',this)"><span class="gdot"></span>Metal<span class="gcnt">500</span></button>
-    <button class="gb gCountry"  data-genre="Country"  onclick="setGenre('Country',this)"><span class="gdot"></span>Country<span class="gcnt">500</span></button>
-    <button class="gb gEDM"      data-genre="EDM"      onclick="setGenre('EDM',this)"><span class="gdot"></span>EDM<span class="gcnt">500</span></button>
-    <button class="gb gSchlager" data-genre="Schlager" onclick="setGenre('Schlager',this)"><span class="gdot"></span>Schlager<span class="gcnt">500</span></button>
+    <button class="gb gRock"         data-genre="Rock"         onclick="setGenre('Rock',this)"><span class="gdot"></span>Rock<span class="gcnt">500</span></button>
+    <button class="gb gPop"          data-genre="Pop"          onclick="setGenre('Pop',this)"><span class="gdot"></span>Pop<span class="gcnt">500</span></button>
+    <button class="gb gHipHop"       data-genre="Hip-Hop"      onclick="setGenre('Hip-Hop',this)"><span class="gdot"></span>Hip-Hop<span class="gcnt">500</span></button>
+    <button class="gb gMetal"        data-genre="Metal"        onclick="setGenre('Metal',this)"><span class="gdot"></span>Metal<span class="gcnt">500</span></button>
+    <button class="gb gCountry"      data-genre="Country"      onclick="setGenre('Country',this)"><span class="gdot"></span>Country<span class="gcnt">500</span></button>
+    <button class="gb gEDM"          data-genre="EDM"          onclick="setGenre('EDM',this)"><span class="gdot"></span>EDM<span class="gcnt">500</span></button>
+    <button class="gb gSchlager"     data-genre="Schlager"     onclick="setGenre('Schlager',this)"><span class="gdot"></span>Schlager<span class="gcnt">500</span></button>
+    <button class="gb gClassical"    data-genre="Classical"    onclick="setGenre('Classical',this)"><span class="gdot"></span>Classical<span class="gcnt">500</span></button>
+    <button class="gb gJazz"         data-genre="Jazz"         onclick="setGenre('Jazz',this)"><span class="gdot"></span>Jazz<span class="gcnt">500</span></button>
+    <button class="gb gBlues"        data-genre="Blues"        onclick="setGenre('Blues',this)"><span class="gdot"></span>Blues<span class="gcnt">500</span></button>
+    <button class="gb gFolk"         data-genre="Folk"         onclick="setGenre('Folk',this)"><span class="gdot"></span>Folk<span class="gcnt">500</span></button>
+    <button class="gb gRnB"          data-genre="R&amp;B"      onclick="setGenre('R&B',this)"><span class="gdot"></span>R&amp;B<span class="gcnt">500</span></button>
+    <button class="gb gGospel"       data-genre="Gospel"       onclick="setGenre('Gospel',this)"><span class="gdot"></span>Gospel<span class="gcnt">500</span></button>
+    <button class="gb gLatin"        data-genre="Latin"        onclick="setGenre('Latin',this)"><span class="gdot"></span>Latin<span class="gcnt">500</span></button>
+    <button class="gb gReggae"       data-genre="Reggae"       onclick="setGenre('Reggae',this)"><span class="gdot"></span>Reggae<span class="gcnt">500</span></button>
+    <button class="gb gWorld"        data-genre="World"        onclick="setGenre('World',this)"><span class="gdot"></span>World<span class="gcnt">500</span></button>
+    <button class="gb gExperimental" data-genre="Experimental" onclick="setGenre('Experimental',this)"><span class="gdot"></span>Experimental<span class="gcnt">500</span></button>
   </div>
 
   <div class="sb-sec">
@@ -543,7 +563,7 @@ input, select { font: inherit; color: inherit; background: none; border: none; o
   </div>
 
   <div class="sb-stats">
-    <div class="sstat"><span class="sstat-l">Songs gesamt</span><span class="sstat-v" id="ss-total">4000</span></div>
+    <div class="sstat"><span class="sstat-l">Songs gesamt</span><span class="sstat-v" id="ss-total">9000</span></div>
     <div class="sstat"><span class="sstat-l">Ältester Song</span><span class="sstat-v" id="ss-old">1935</span></div>
     <div class="sstat"><span class="sstat-l">Neuester Song</span><span class="sstat-v" id="ss-new">2024</span></div>
   </div>
@@ -1044,17 +1064,30 @@ function showView(v) {
 <script src="data-edm.js"></script>
 <script src="data-schlager.js"></script>
 <script src="data-classics.js"></script>
+<script src="data-classical.js"></script>
+<script src="data-jazz.js"></script>
+<script src="data-blues.js"></script>
+<script src="data-folk.js"></script>
+<script src="data-rnb.js"></script>
+<script src="data-gospel.js"></script>
+<script src="data-latin.js"></script>
+<script src="data-reggae.js"></script>
+<script src="data-world.js"></script>
+<script src="data-experimental.js"></script>
 
 <script>
 // ─── INIT ────────────────────────────────────────────────────────────────────
 const ALL_SONGS = [
   ...SONGS_ROCK, ...SONGS_POP, ...SONGS_HIPHOP, ...SONGS_METAL,
-  ...SONGS_COUNTRY, ...SONGS_EDM, ...SONGS_SCHLAGER, ...SONGS_CLASSICS
+  ...SONGS_COUNTRY, ...SONGS_EDM, ...SONGS_SCHLAGER, ...SONGS_CLASSICS,
+  ...SONGS_CLASSICAL, ...SONGS_JAZZ, ...SONGS_BLUES, ...SONGS_FOLK,
+  ...SONGS_RNB, ...SONGS_GOSPEL, ...SONGS_LATIN, ...SONGS_REGGAE,
+  ...SONGS_WORLD, ...SONGS_EXPERIMENTAL
 ];
 
-const GENRES = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager'];
-const GC = { Rock:'#f43f5e', Pop:'#ec4899', 'Hip-Hop':'#f59e0b', Metal:'#6366f1', Country:'#10b981', EDM:'#06b6d4', Schlager:'#f97316' };
-const GCL = { Rock:'gRock', Pop:'gPop', 'Hip-Hop':'gHipHop', Metal:'gMetal', Country:'gCountry', EDM:'gEDM', Schlager:'gSchlager' };
+const GENRES = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager','Classical','Jazz','Blues','Folk','R&B','Gospel','Latin','Reggae','World','Experimental'];
+const GC = { Rock:'#f43f5e', Pop:'#ec4899', 'Hip-Hop':'#f59e0b', Metal:'#6366f1', Country:'#10b981', EDM:'#06b6d4', Schlager:'#f97316', Classical:'#8b5cf6', Jazz:'#d97706', Blues:'#2563eb', Folk:'#65a30d', 'R&B':'#db2777', Gospel:'#ea580c', Latin:'#dc2626', Reggae:'#16a34a', World:'#0891b2', Experimental:'#7c3aed' };
+const GCL = { Rock:'gRock', Pop:'gPop', 'Hip-Hop':'gHipHop', Metal:'gMetal', Country:'gCountry', EDM:'gEDM', Schlager:'gSchlager', Classical:'gClassical', Jazz:'gJazz', Blues:'gBlues', Folk:'gFolk', 'R&B':'gRnB', Gospel:'gGospel', Latin:'gLatin', Reggae:'gReggae', World:'gWorld', Experimental:'gExperimental' };
 const PAGE_SIZE = 100;
 
 let state = { genre:'all', era:'all', query:'', sort:'rank', page:1, filtered:[] };
