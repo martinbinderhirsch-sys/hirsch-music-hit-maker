@@ -45,7 +45,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "hirsch-music",
+      "owner": "martinbinderhirsch-sys",
       "repo": "hirsch-music-hit-maker"
     },
     "nsis": {
