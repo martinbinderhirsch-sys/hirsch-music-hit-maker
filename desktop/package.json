@@ -1,0 +1,62 @@
+{
+  "name": "hirsch-music-hit-maker",
+  "productName": "Hirsch Music Hit Maker",
+  "version": "1.0.0",
+  "description": "4000 Songs \u00b7 KI Song Writer \u00b7 Song Fusion \u00b7 Musik Generator",
+  "main": "main.js",
+  "author": "Hirsch Music",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "build:all": "electron-builder --win --mac --linux"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.hirsch.music.hitmaker",
+    "productName": "Hirsch Music Hit Maker",
+    "copyright": "Hirsch Music Hit Maker",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hirsch-music",
+      "repo": "hirsch-music-hit-maker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Hirsch Music Hit Maker",
+      "runAfterFinish": true
+    }
+  }
+}

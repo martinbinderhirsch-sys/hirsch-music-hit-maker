@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hirsch Music Hit Maker</title>
+<meta name="description" content="Interaktives Musik-Dashboard mit 500 Songs pro Genre für Rock, Pop, Hip-Hop, Metal, Country, EDM und Schlager.">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#a855f7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hirsch Music Hit Maker">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap" rel="stylesheet">
+
+<style>
+/* ─── RESET ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; height: 100%; overflow: hidden; }
+body { min-height: 100dvh; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; font-size: clamp(0.875rem, 0.8rem + 0.35vw, 1rem); color: var(--color-text); background: var(--color-bg); transition: background .3s, color .3s; }
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+table { border-collapse: collapse; width: 100%; }
+input, select { font: inherit; color: inherit; background: none; border: none; outline: none; }
+
+/* ─── TOKENS ─────────────────────────────────────────────────────────── */
+:root, [data-theme="dark"] {
+  --bg:       #0d0d0f; --surf:     #141416; --surf2:    #1a1a1e;
+  --surfh:    #222228; --border:   #2a2a32; --borderl:  #1e1e26;
+  --tx:       #e8e6f0; --txm:      #8080a0; --txf:      #404055;
+  --pr:       #a855f7; --prh:      #c084fc; --ac2:      #06b6d4; --ac3: #f59e0b;
+  --sh-sm: 0 1px 3px rgba(0,0,0,.4); --sh-md: 0 4px 16px rgba(0,0,0,.5);
+  --r-sm:.375rem; --r-md:.625rem; --r-lg:1rem; --r-xl:1.5rem;
+  --ease: 140ms cubic-bezier(.16,1,.3,1);
+  --color-bg: var(--bg); --color-text: var(--tx); --color-surface: var(--surf);
+  --color-border: var(--border); --color-text-muted: var(--txm);
+  --color-text-faint: var(--txf); --color-surface-2: var(--surf2);
+  --color-surface-hover: var(--surfh); --color-primary: var(--pr);
+  --color-border-light: var(--borderl);
+}
+[data-theme="light"] {
+  --bg:#f5f5f8; --surf:#fff; --surf2:#f0f0f5; --surfh:#e8e8f0;
+  --border:#dcdce8; --borderl:#ebebf5; --tx:#1a1a2e; --txm:#606080; --txf:#c0c0d8;
+  --pr:#9333ea; --prh:#7c3aed; --ac2:#0891b2; --ac3:#d97706;
+  --sh-sm:0 1px 3px rgba(0,0,0,.08); --sh-md:0 4px 16px rgba(0,0,0,.1);
+  --color-bg:var(--bg); --color-text:var(--tx); --color-surface:var(--surf);
+  --color-border:var(--border); --color-text-muted:var(--txm);
+  --color-text-faint:var(--txf); --color-surface-2:var(--surf2);
+  --color-surface-hover:var(--surfh); --color-primary:var(--pr);
+  --color-border-light:var(--borderl);
+}
+
+/* ─── GENRE COLORS ───────────────────────────────────────────────────── */
+.gRock     { --gc:#f43f5e; --gb:rgba(244,63,94,.12); }
+.gPop      { --gc:#ec4899; --gb:rgba(236,72,153,.12); }
+.gHipHop   { --gc:#f59e0b; --gb:rgba(245,158,11,.12); }
+.gMetal    { --gc:#6366f1; --gb:rgba(99,102,241,.12); }
+.gCountry  { --gc:#10b981; --gb:rgba(16,185,129,.12); }
+.gEDM      { --gc:#06b6d4; --gb:rgba(6,182,212,.12); }
+.gSchlager { --gc:#f97316; --gb:rgba(249,115,22,.12); }
+.gAll      { --gc:#a855f7; --gb:rgba(168,85,247,.12); }
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────── */
+.dash { display:grid; grid-template-columns:220px 1fr; grid-template-rows:auto 1fr; height:100dvh; }
+.sidebar { grid-row:1/-1; background:var(--surf); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; overscroll-behavior:contain; }
+.topbar { grid-column:2; background:var(--surf); border-bottom:1px solid var(--border); padding:0 1.25rem; display:flex; align-items:center; gap:.75rem; height:56px; position:sticky; top:0; z-index:20; }
+.main { grid-column:2; overflow-y:auto; overscroll-behavior:contain; padding:1.25rem; }
+
+/* ─── SIDEBAR LOGO ───────────────────────────────────────────────────── */
+.logo { padding:1.125rem 1.125rem .875rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.5rem; text-decoration:none; color:var(--tx); }
+.logo-icon { width:30px; height:30px; flex-shrink:0; }
+.logo-text { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:.9rem; font-weight:800; letter-spacing:-.02em; color:var(--tx); line-height:1.1; }
+.logo-text span { display:block; font-size:.6rem; font-weight:400; letter-spacing:.07em; text-transform:uppercase; color:var(--txm); margin-top:1px; }
+
+/* ─── SIDEBAR NAV ────────────────────────────────────────────────────── */
+.sb-sec { padding:.625rem .625rem .375rem; }
+.sb-lbl { font-size:.62rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--txf); padding:0 .5rem; margin-bottom:.25rem; }
+.gb { display:flex; align-items:center; gap:.5rem; width:100%; padding:.4375rem .5625rem; border-radius:var(--r-md); font-size:.78rem; font-weight:500; color:var(--txm); transition:background var(--ease),color var(--ease); text-align:left; cursor:pointer; }
+.gb:hover { background:var(--surfh); color:var(--tx); }
+.gb.active { background:var(--gb); color:var(--gc); }
+.gdot { width:6px; height:6px; border-radius:50%; background:var(--gc,var(--txf)); flex-shrink:0; transition:transform var(--ease); }
+.gb.active .gdot { transform:scale(1.4); }
+.gcnt { margin-left:auto; font-size:.68rem; font-family:'Space Mono',monospace; color:var(--txf); font-variant-numeric:tabular-nums; }
+.gb.active .gcnt { color:var(--gc); }
+
+/* ─── SIDEBAR STATS ──────────────────────────────────────────────────── */
+.sb-stats { margin-top:auto; padding:.875rem 1.125rem; border-top:1px solid var(--border); }
+.sstat { display:flex; justify-content:space-between; align-items:center; padding:.2rem 0; }
+.sstat-l { font-size:.72rem; color:var(--txm); }
+.sstat-v { font-size:.72rem; font-family:'Space Mono',monospace; font-weight:700; color:var(--pr); font-variant-numeric:tabular-nums; }
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────── */
+.srch { flex:1; display:flex; align-items:center; gap:.4rem; background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-md); padding:0 .625rem; height:36px; max-width:380px; transition:border-color var(--ease); }
+.srch:focus-within { border-color:var(--pr); }
+.srch svg { color:var(--txf); flex-shrink:0; }
+.srch input { flex:1; font-size:.78rem; color:var(--tx); }
+.srch input::placeholder { color:var(--txf); }
+.tb-acts { display:flex; align-items:center; gap:.375rem; margin-left:auto; }
+.selw { display:flex; align-items:center; gap:.3rem; background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-md); padding:0 .625rem; height:36px; }
+.selw label { font-size:.72rem; color:var(--txm); white-space:nowrap; }
+.selw select { font-size:.78rem; cursor:pointer; }
+.selw select option { background:var(--surf); }
+.iBtn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--r-md); background:var(--surf2); border:1px solid var(--border); color:var(--txm); transition:background var(--ease),color var(--ease),border-color var(--ease); }
+.iBtn:hover { background:var(--surfh); color:var(--tx); }
+.pg-info { font-size:.72rem; color:var(--txm); white-space:nowrap; font-family:'Space Mono',monospace; }
+
+/* ─── KPI ────────────────────────────────────────────────────────────── */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem; margin-bottom:1.125rem; }
+.kpi { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-lg); padding:.875rem 1.125rem; position:relative; overflow:hidden; }
+.kpi::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--gc,var(--pr)); border-radius:3px 0 0 3px; }
+.kpi-l { font-size:.65rem; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--txm); margin-bottom:.3rem; }
+.kpi-v { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:clamp(1.375rem,1.1rem+1vw,2rem); font-weight:800; letter-spacing:-.03em; color:var(--tx); line-height:1; font-variant-numeric:tabular-nums; }
+.kpi-s { font-size:.66rem; color:var(--txm); margin-top:.2rem; }
+
+/* ─── CHART ──────────────────────────────────────────────────────────── */
+.chart-sec { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-lg); padding:1rem 1.125rem; margin-bottom:1.125rem; }
+.sec-ttl { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:.82rem; font-weight:700; letter-spacing:-.01em; color:var(--tx); margin-bottom:.875rem; }
+.dbars { display:flex; align-items:flex-end; gap:.3rem; height:80px; }
+.dbar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:3px; height:100%; }
+.dbar { width:100%; background:linear-gradient(180deg,var(--pr) 0%,rgba(168,85,247,.35) 100%); border-radius:3px 3px 0 0; opacity:.75; transition:opacity var(--ease); min-height:2px; flex-shrink:0; }
+.dbar:hover { opacity:1; }
+.dbar-lbl { font-size:.6rem; font-family:'Space Mono',monospace; color:var(--txf); white-space:nowrap; }
+
+/* ─── TABLE WRAP ─────────────────────────────────────────────────────── */
+.tbl-wrap { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
+.tbl-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; padding:.875rem 1.125rem; border-bottom:1px solid var(--border); }
+.tbl-head-left { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+.res-cnt { font-size:.78rem; color:var(--txm); }
+.res-cnt strong { color:var(--tx); font-variant-numeric:tabular-nums; }
+.gpills { display:flex; gap:.25rem; flex-wrap:wrap; }
+.gpill { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .625rem; border-radius:9999px; font-size:.7rem; font-weight:600; border:1.5px solid transparent; cursor:pointer; transition:all var(--ease); color:var(--gc); background:var(--gb); }
+.gpill:hover { border-color:var(--gc); }
+.gpill.active { border-color:var(--gc); }
+
+/* ─── COL HEADERS ────────────────────────────────────────────────────── */
+.col-hdr { display:grid; grid-template-columns:48px 1fr 150px 90px 70px 70px; padding:.5rem 1.125rem; border-bottom:1px solid var(--borderl); position:sticky; top:0; background:var(--surf); z-index:5; }
+.ch { font-size:.65rem; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--txf); cursor:pointer; display:flex; align-items:center; gap:.2rem; user-select:none; transition:color var(--ease); }
+.ch:hover { color:var(--txm); }
+.ch.sorted { color:var(--pr); }
+
+/* ─── SONG ROWS ──────────────────────────────────────────────────────── */
+#songList { }
+.srow { display:grid; grid-template-columns:48px 1fr 150px 90px 70px 70px; padding:.6rem 1.125rem; border-bottom:1px solid var(--borderl); align-items:center; transition:background var(--ease); }
+.srow:last-child { border-bottom:none; }
+.srow:hover { background:var(--surfh); }
+.rk { font-family:'Space Mono',monospace; font-size:.7rem; font-weight:700; color:var(--txf); font-variant-numeric:tabular-nums; }
+.rk1{color:#f59e0b} .rk2{color:#94a3b8} .rk3{color:#b45309}
+.ti { display:flex; flex-direction:column; gap:.1rem; min-width:0; }
+.ti-t { font-size:.82rem; font-weight:600; color:var(--tx); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-.01em; }
+.ti-a { font-size:.65rem; color:var(--txf); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ar { font-size:.76rem; color:var(--txm); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:.4rem; }
+.gbadge { display:inline-flex; align-items:center; padding:.15rem .4rem; border-radius:9999px; font-size:.62rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; background:var(--gb); color:var(--gc); }
+.yr { font-family:'Space Mono',monospace; font-size:.7rem; color:var(--txm); font-variant-numeric:tabular-nums; }
+.dc { font-size:.65rem; color:var(--txf); font-family:'Space Mono',monospace; }
+
+/* ─── PAGINATION ─────────────────────────────────────────────────────── */
+.pg-bar { display:flex; align-items:center; justify-content:center; gap:.5rem; padding:.875rem; border-top:1px solid var(--borderl); }
+.pg-btn { display:flex; align-items:center; justify-content:center; min-width:32px; height:32px; border-radius:var(--r-sm); font-size:.75rem; font-weight:600; color:var(--txm); background:var(--surf2); border:1px solid var(--border); cursor:pointer; transition:all var(--ease); padding:0 .5rem; font-family:'Space Mono',monospace; }
+.pg-btn:hover { background:var(--surfh); color:var(--tx); }
+.pg-btn.cur { background:rgba(168,85,247,.2); border-color:var(--pr); color:var(--pr); }
+.pg-btn:disabled { opacity:.35; cursor:not-allowed; }
+.pg-dots { color:var(--txf); font-size:.75rem; padding:0 .25rem; }
+
+/* ─── MATCHER VIEW ──────────────────────────────────────────────────── */
+.view { display:none; }
+.view.active { display:block; }
+
+.matcher-wrap { max-width:900px; }
+.matcher-title { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:clamp(1.2rem,1rem+1vw,1.75rem); font-weight:800; letter-spacing:-.03em; color:var(--tx); margin-bottom:.375rem; }
+.matcher-sub { font-size:.8rem; color:var(--txm); margin-bottom:1.5rem; }
+
+.matcher-grid { display:grid; grid-template-columns:1fr auto 1fr; gap:1rem; align-items:start; margin-bottom:1.25rem; }
+.song-picker { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-lg); padding:1rem; }
+.picker-lbl { font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txm); margin-bottom:.625rem; display:flex; align-items:center; gap:.375rem; }
+.picker-lbl span { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; font-size:.65rem; font-weight:800; }
+.picker-lbl.l1 span { background:rgba(168,85,247,.25); color:var(--pr); }
+.picker-lbl.l2 span { background:rgba(6,182,212,.25); color:var(--ac2); }
+
+.picker-search { display:flex; align-items:center; gap:.375rem; background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-md); padding:0 .625rem; height:34px; margin-bottom:.5rem; transition:border-color var(--ease); }
+.picker-search:focus-within { border-color:var(--pr); }
+.picker-search input { flex:1; font-size:.78rem; color:var(--tx); }
+.picker-search input::placeholder { color:var(--txf); }
+
+.picker-results { max-height:180px; overflow-y:auto; border-radius:var(--r-md); }
+.picker-item { display:flex; flex-direction:column; padding:.4375rem .625rem; border-radius:var(--r-sm); cursor:pointer; transition:background var(--ease); border:1.5px solid transparent; margin-bottom:2px; }
+.picker-item:hover { background:var(--surfh); }
+.picker-item.selected { border-color:var(--pr); background:rgba(168,85,247,.08); }
+.picker-item.selected2 { border-color:var(--ac2); background:rgba(6,182,212,.08); }
+.pi-title { font-size:.78rem; font-weight:600; color:var(--tx); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pi-meta { font-size:.65rem; color:var(--txm); margin-top:1px; }
+
+.selected-display { min-height:60px; background:var(--surf2); border:1px dashed var(--border); border-radius:var(--r-md); padding:.625rem .75rem; margin-top:.5rem; }
+.selected-display.has-song { border-style:solid; border-color:var(--pr); background:rgba(168,85,247,.06); }
+.selected-display.has-song2 { border-color:var(--ac2); background:rgba(6,182,212,.06); }
+.sd-title { font-size:.82rem; font-weight:700; color:var(--tx); }
+.sd-meta { font-size:.68rem; color:var(--txm); margin-top:2px; }
+.sd-badge { display:inline-flex; align-items:center; padding:.125rem .4rem; border-radius:9999px; font-size:.6rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-top:4px; }
+.sd-empty { font-size:.75rem; color:var(--txf); font-style:italic; }
+
+.vs-circle { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(6,182,212,.2)); border:1.5px solid var(--border); font-family:'Cabinet Grotesk',sans-serif; font-weight:800; font-size:.8rem; color:var(--txm); flex-shrink:0; align-self:center; margin-top:2rem; }
+
+.match-btn { width:100%; padding:.6875rem; background:linear-gradient(135deg,#a855f7,#06b6d4); border:none; border-radius:var(--r-md); font-family:'Cabinet Grotesk','Inter',sans-serif; font-weight:800; font-size:.9rem; color:#fff; cursor:pointer; transition:opacity var(--ease),transform var(--ease); letter-spacing:-.01em; }
+.match-btn:hover { opacity:.9; transform:translateY(-1px); }
+.match-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+/* Random Matches */
+.random-sect { margin-top:1.5rem; }
+.rsect-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.625rem; }
+.rsect-header .rsect-title { margin-bottom:0; }
+.refresh-pairs-btn { display:inline-flex; align-items:center; gap:.375rem; padding:.35rem .75rem; border:1px solid rgba(168,85,247,.35); border-radius:var(--r-md); background:rgba(168,85,247,.08); color:#a855f7; font-size:.72rem; font-weight:600; cursor:pointer; transition:all var(--ease); }
+.refresh-pairs-btn:hover { border-color:#a855f7; background:rgba(168,85,247,.18); transform:scale(1.03); }
+.refresh-pairs-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.refresh-pairs-btn.spinning svg { animation:spin .7s linear infinite; }
+.rsect-title { font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txm); margin-bottom:.75rem; display:flex; align-items:center; gap:.5rem; }
+.rsect-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.random-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:.75rem; }
+.rand-card { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-lg); padding:.875rem; cursor:pointer; transition:all var(--ease); }
+.rand-card:hover { border-color:var(--pr); background:rgba(168,85,247,.05); transform:translateY(-2px); box-shadow:var(--sh-md); }
+.rand-score { display:flex; align-items:center; gap:.375rem; margin-bottom:.5rem; }
+.score-bar-wrap { flex:1; height:5px; background:var(--border); border-radius:9999px; overflow:hidden; }
+.score-bar { height:100%; border-radius:9999px; background:linear-gradient(90deg,#a855f7,#06b6d4); }
+.score-pct { font-size:.7rem; font-family:'Space Mono',monospace; font-weight:700; color:var(--pr); }
+.rand-songs { display:flex; gap:.375rem; align-items:center; margin-bottom:.375rem; flex-wrap:wrap; }
+.rand-song { font-size:.75rem; font-weight:600; color:var(--tx); }
+.rand-by { font-size:.65rem; color:var(--txm); }
+.rand-x { color:var(--txf); font-size:.7rem; font-weight:700; padding:0 .125rem; }
+.rand-tags { display:flex; gap:.25rem; flex-wrap:wrap; margin-top:.375rem; }
+.rtag { font-size:.6rem; padding:.125rem .375rem; border-radius:9999px; border:1px solid var(--border); color:var(--txm); }
+
+/* Result Panel */
+.result-panel { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-xl); padding:1.5rem; margin-top:1.25rem; display:none; }
+.result-panel.visible { display:block; }
+.rp-header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1.25rem; }
+.rp-score-ring { flex-shrink:0; }
+.rp-score-circle { width:72px; height:72px; position:relative; }
+.rp-score-circle svg { transform:rotate(-90deg); }
+.rp-score-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Cabinet Grotesk','Inter',sans-serif; font-weight:800; font-size:1rem; color:var(--tx); }
+.rp-title-block .fusion-title { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:clamp(1.1rem,.9rem+.8vw,1.6rem); font-weight:800; letter-spacing:-.03em; color:var(--tx); }
+.rp-title-block .fusion-subtitle { font-size:.78rem; color:var(--txm); margin-top:.25rem; }
+.rp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.875rem; margin-bottom:1.25rem; }
+.rp-card { background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-md); padding:.75rem; }
+.rp-card-lbl { font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txf); margin-bottom:.375rem; }
+.rp-card-val { font-size:.82rem; font-weight:600; color:var(--tx); }
+.rp-card-sub { font-size:.68rem; color:var(--txm); margin-top:2px; }
+.lyric-concept { background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(6,182,212,.08)); border:1px solid rgba(168,85,247,.2); border-radius:var(--r-lg); padding:1rem 1.25rem; margin-top:1rem; }
+.lc-title { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pr); margin-bottom:.625rem; }
+.lc-content { font-size:.82rem; color:var(--tx); line-height:1.7; white-space:pre-line; }
+.lc-structure { margin-top:.875rem; padding-top:.875rem; border-top:1px solid rgba(168,85,247,.15); }
+.lc-struct-lbl { font-size:.65rem; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--txm); margin-bottom:.25rem; }
+.lc-struct-val { font-size:.78rem; color:var(--tx); }
+.lc-struct-desc { font-size:.7rem; color:var(--txm); margin-top:2px; }
+
+.dim-bars { display:grid; grid-template-columns:1fr 1fr; gap:.375rem .875rem; margin-top:.875rem; }
+.dim-bar-row { display:flex; align-items:center; gap:.5rem; }
+.dim-lbl { font-size:.65rem; color:var(--txm); width:80px; flex-shrink:0; }
+.dim-track { flex:1; height:6px; background:var(--border); border-radius:9999px; overflow:hidden; }
+.dim-fill { height:100%; border-radius:9999px; }
+.dim-val { font-size:.65rem; font-family:'Space Mono',monospace; color:var(--txf); width:28px; text-align:right; }
+
+.loading-spinner { display:flex; align-items:center; justify-content:center; gap:.625rem; padding:1.5rem; color:var(--txm); font-size:.82rem; }
+.spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--pr); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+/* ─── SONG WRITER PANEL ──────────────────────────────────────────────── */
+.writer-panel { margin-top:1.5rem; }
+.writer-header { display:flex; align-items:center; gap:.625rem; margin-bottom:1.125rem; }
+.writer-header-icon { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#a855f7,#06b6d4); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.writer-title { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:1rem; font-weight:800; letter-spacing:-.025em; color:var(--tx); }
+.writer-sub { font-size:.72rem; color:var(--txm); margin-left:auto; }
+
+/* Lyric columns */
+.lyric-cols { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem; }
+@media (max-width:640px) { .lyric-cols { grid-template-columns:1fr; } }
+.lyric-col { background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
+.lyric-col-header { display:flex; align-items:center; gap:.5rem; padding:.625rem .875rem; border-bottom:1px solid var(--border); }
+.lyric-col-flag { font-size:.9rem; }
+.lyric-col-lang { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txm); }
+.lyric-col-badge { margin-left:auto; font-size:.6rem; padding:.1rem .375rem; border-radius:9999px; font-weight:700; }
+.badge-en { background:rgba(6,182,212,.15); color:var(--ac2); }
+.badge-de { background:rgba(168,85,247,.15); color:var(--pr); }
+.lyric-col-body { padding:.75rem .875rem; }
+
+.lyric-section { margin-bottom:1rem; }
+.lyric-section:last-child { margin-bottom:0; }
+.lyric-sec-lbl { font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--txf); margin-bottom:.3rem; padding:.15rem .375rem; border-radius:4px; display:inline-block; }
+.lyric-sec-lbl.lbl-intro    { background:rgba(99,102,241,.15); color:#818cf8; }
+.lyric-sec-lbl.lbl-verse    { background:rgba(168,85,247,.15); color:var(--pr); }
+.lyric-sec-lbl.lbl-prechorus{ background:rgba(245,158,11,.15); color:var(--ac3); }
+.lyric-sec-lbl.lbl-chorus   { background:rgba(6,182,212,.2); color:var(--ac2); }
+.lyric-sec-lbl.lbl-bridge   { background:rgba(244,63,94,.15); color:#f43f5e; }
+.lyric-sec-lbl.lbl-outro    { background:rgba(16,185,129,.15); color:#10b981; }
+.lyric-sec-text { font-size:.8rem; color:var(--tx); line-height:1.75; white-space:pre-line; font-style:italic; }
+
+/* Blueprint panel */
+.blueprint-panel { background:var(--surf); border:1px solid var(--border); border-radius:var(--r-lg); padding:1rem 1.25rem; margin-top:1rem; }
+.blueprint-header { display:flex; align-items:center; gap:.5rem; margin-bottom:1rem; }
+.blueprint-title { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ac3); }
+.bp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:.75rem; margin-bottom:1rem; }
+.bp-card { background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-md); padding:.625rem .75rem; }
+.bp-card-icon { font-size:.9rem; margin-bottom:.25rem; }
+.bp-card-lbl { font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txf); margin-bottom:.2rem; }
+.bp-card-val { font-size:.85rem; font-weight:700; color:var(--tx); line-height:1.3; }
+.bp-card-sub { font-size:.68rem; color:var(--txm); margin-top:2px; }
+
+.bp-instruments { margin-top:.75rem; }
+.bp-instr-lbl { font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txf); margin-bottom:.5rem; }
+.bp-instr-grid { display:grid; grid-template-columns:1fr 1fr; gap:.375rem; }
+.bp-instr-col-hdr { font-size:.6rem; font-weight:700; color:var(--txm); margin-bottom:.25rem; display:flex; align-items:center; gap:.25rem; }
+.bp-instr-tag { font-size:.7rem; padding:.2rem .5rem; background:var(--surfh); border:1px solid var(--border); border-radius:9999px; color:var(--tx); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.bp-dynamic { margin-top:.875rem; padding-top:.875rem; border-top:1px solid var(--border); }
+.bp-dyn-lbl { font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txf); margin-bottom:.375rem; }
+.bp-dyn-val { font-size:.78rem; color:var(--tx); line-height:1.6; }
+
+.bp-prod { margin-top:.875rem; padding-top:.875rem; border-top:1px solid var(--border); }
+.bp-prod-lbl { font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txf); margin-bottom:.375rem; }
+.bp-prod-val { font-size:.75rem; color:var(--txm); line-height:1.6; }
+
+.copy-btn { display:inline-flex; align-items:center; gap:.375rem; padding:.375rem .75rem; border:1px solid var(--border); border-radius:var(--r-md); background:var(--surf2); color:var(--txm); font-size:.72rem; font-weight:600; cursor:pointer; transition:all var(--ease); }
+.copy-btn:hover { border-color:var(--pr); color:var(--pr); background:rgba(168,85,247,.07); }
+.copy-btn.copied { border-color:#10b981; color:#10b981; background:rgba(16,185,129,.08); }
+
+/* ─── MUSIK GENERATOR VIEW ───────────────────────────────────────────── */
+.gen-wrap { max-width:860px; }
+.gen-hero { background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(168,85,247,.08)); border:1px solid rgba(245,158,11,.2); border-radius:var(--r-xl); padding:1.5rem; margin-bottom:1.5rem; }
+.gen-hero-top { display:flex; align-items:center; gap:.875rem; margin-bottom:.75rem; }
+.gen-hero-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#ef4444); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.gen-hero-title { font-family:'Cabinet Grotesk','Inter',sans-serif; font-size:clamp(1.1rem,.9rem+.8vw,1.5rem); font-weight:800; letter-spacing:-.03em; color:var(--tx); }
+.gen-hero-sub { font-size:.78rem; color:var(--txm); line-height:1.6; }
+.gen-source-badge { display:inline-flex; align-items:center; gap:.375rem; padding:.25rem .625rem; border-radius:9999px; font-size:.68rem; font-weight:700; background:rgba(245,158,11,.15); color:var(--ac3); border:1px solid rgba(245,158,11,.25); margin-top:.75rem; }
+.gen-source-badge.has-data { background:rgba(16,185,129,.12); color:#10b981; border-color:rgba(16,185,129,.25); }
+
+/* Prompt Box */
+.prompt-section { margin-bottom:1.5rem; }
+.prompt-label { font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txm); margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem; }
+.prompt-label span { flex:1; height:1px; background:var(--border); }
+.prompt-box { position:relative; }
+.prompt-textarea { width:100%; min-height:110px; background:var(--surf2); border:1.5px solid var(--border); border-radius:var(--r-lg); padding:.875rem 1rem; font-size:.82rem; color:var(--tx); line-height:1.65; resize:vertical; transition:border-color var(--ease); font-family:'Inter',sans-serif; }
+.prompt-textarea:focus { border-color:var(--ac3); outline:none; }
+.prompt-actions { display:flex; align-items:center; gap:.625rem; margin-top:.625rem; flex-wrap:wrap; }
+.prompt-copy-btn { display:inline-flex; align-items:center; gap:.375rem; padding:.5rem 1rem; border-radius:var(--r-md); background:linear-gradient(135deg,#f59e0b,#ef4444); border:none; color:#fff; font-size:.8rem; font-weight:700; cursor:pointer; transition:opacity var(--ease),transform var(--ease); font-family:'Cabinet Grotesk','Inter',sans-serif; }
+.prompt-copy-btn:hover { opacity:.9; transform:translateY(-1px); }
+.prompt-copy-btn.done { background:linear-gradient(135deg,#10b981,#059669); }
+.prompt-hint { font-size:.7rem; color:var(--txf); }
+.prompt-tag-row { display:flex; gap:.375rem; flex-wrap:wrap; margin-top:.5rem; }
+.prompt-tag { font-size:.68rem; padding:.2rem .5rem; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.2); border-radius:9999px; color:var(--ac3); cursor:pointer; transition:all var(--ease); }
+.prompt-tag:hover { background:rgba(245,158,11,.2); }
+
+/* Platform Cards */
+.platforms-label { font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txm); margin-bottom:.875rem; display:flex; align-items:center; gap:.5rem; }
+.platforms-label span { flex:1; height:1px; background:var(--border); }
+.platform-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:.875rem; margin-bottom:1.5rem; }
+.platform-card { background:var(--surf); border:1.5px solid var(--border); border-radius:var(--r-xl); padding:1.125rem; transition:all var(--ease); cursor:pointer; text-decoration:none; display:flex; flex-direction:column; gap:.625rem; position:relative; overflow:hidden; }
+.platform-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity var(--ease); border-radius:inherit; }
+.platform-card:hover { transform:translateY(-2px); box-shadow:var(--sh-md); }
+.platform-card.suno::before  { background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(239,68,68,.06)); }
+.platform-card.udio::before  { background:linear-gradient(135deg,rgba(6,182,212,.06),rgba(99,102,241,.06)); }
+.platform-card.beatoven::before { background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(6,182,212,.06)); }
+.platform-card.suno:hover  { border-color:#f59e0b; }
+.platform-card.udio:hover  { border-color:#06b6d4; }
+.platform-card.beatoven:hover { border-color:#10b981; }
+.platform-card:hover::before { opacity:1; }
+.plat-top { display:flex; align-items:center; gap:.625rem; }
+.plat-logo { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.85rem; font-family:'Cabinet Grotesk',sans-serif; flex-shrink:0; }
+.plat-logo.suno-logo     { background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; }
+.plat-logo.udio-logo     { background:linear-gradient(135deg,#06b6d4,#6366f1); color:#fff; }
+.plat-logo.beatoven-logo { background:linear-gradient(135deg,#10b981,#06b6d4); color:#fff; }
+.plat-name { font-family:'Cabinet Grotesk','Inter',sans-serif; font-weight:800; font-size:.9rem; color:var(--tx); }
+.plat-tagline { font-size:.68rem; color:var(--txm); }
+.plat-features { display:flex; flex-wrap:wrap; gap:.25rem; }
+.plat-feat { font-size:.62rem; padding:.15rem .4rem; border-radius:9999px; background:var(--surf2); border:1px solid var(--border); color:var(--txm); }
+.plat-cta { display:flex; align-items:center; justify-content:space-between; margin-top:.25rem; }
+.plat-cta-text { font-size:.75rem; font-weight:700; }
+.plat-cta-text.suno-cta     { color:#f59e0b; }
+.plat-cta-text.udio-cta     { color:#06b6d4; }
+.plat-cta-text.beatoven-cta { color:#10b981; }
+.plat-free { font-size:.6rem; padding:.1rem .35rem; border-radius:9999px; background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.2); font-weight:700; }
+
+/* Workflow steps */
+.gen-steps { background:var(--surf2); border:1px solid var(--border); border-radius:var(--r-lg); padding:1rem 1.25rem; margin-top:.5rem; }
+.gen-steps-title { font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--txf); margin-bottom:.875rem; }
+.gen-step-list { display:flex; flex-direction:column; gap:.625rem; }
+.gen-step { display:flex; align-items:flex-start; gap:.75rem; }
+.gen-step-num { width:22px; height:22px; border-radius:50%; background:rgba(245,158,11,.15); color:var(--ac3); font-size:.68rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.gen-step-text { font-size:.78rem; color:var(--txm); line-height:1.5; }
+.gen-step-text strong { color:var(--tx); font-weight:600; }
+
+/* No-data warning */
+.gen-no-data { background:rgba(245,158,11,.07); border:1px dashed rgba(245,158,11,.3); border-radius:var(--r-lg); padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.75rem; font-size:.78rem; color:var(--txm); }
+.gen-no-data svg { flex-shrink:0; opacity:.7; color:var(--ac3); }
+
+/* ─── EMPTY STATE ────────────────────────────────────────────────────── */
+.empty { text-align:center; padding:2.5rem 1rem; color:var(--txf); }
+.empty svg { margin:0 auto .625rem; opacity:.35; }
+.empty p { font-size:.82rem; }
+
+/* ─── MOBILE ─────────────────────────────────────────────────────────── */
+.mob-btn { display:none; }
+@media (max-width:768px) {
+  .dash { grid-template-columns:1fr; grid-template-rows:56px auto 1fr; }
+  .sidebar { grid-row:2; grid-column:1; border-right:none; border-bottom:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .sidebar.open { max-height:480px; }
+  .topbar { grid-column:1; grid-row:1; }
+  .main { grid-column:1; grid-row:3; }
+  .mob-btn { display:flex; }
+  .kpi-row { grid-template-columns:repeat(2,1fr); }
+  .col-hdr, .srow { grid-template-columns:38px 1fr 70px 60px; }
+  .ar, .dc { display:none; }
+}
+/* ─── SCROLLBAR ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:9999px; }
+::-webkit-scrollbar-thumb:hover { background:var(--txf); }
+::selection { background:rgba(168,85,247,.25); }
+:focus-visible { outline:2px solid var(--pr); outline-offset:2px; border-radius:var(--r-sm); }
+/* ─── NEUE FEATURES ─────────────────────────────────────────────────────── */
+/* Regenerate Button */
+.regen-btn { display:inline-flex; align-items:center; gap:.375rem; padding:.375rem .75rem; border:1px solid rgba(245,158,11,.35); border-radius:var(--r-md); background:rgba(245,158,11,.08); color:#f59e0b; font-size:.72rem; font-weight:600; cursor:pointer; transition:all var(--ease); margin-left:auto; }
+.regen-btn:hover { border-color:#f59e0b; background:rgba(245,158,11,.15); transform:scale(1.02); }
+.regen-btn.spinning svg { animation:spin .6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+/* Fusion History */
+.fh-section { margin-top:1.25rem; padding:.875rem 1rem; background:var(--surf2); border-radius:var(--r-lg); border:1px solid var(--border); }
+.fh-header { display:flex; align-items:center; gap:.5rem; margin-bottom:.625rem; font-size:.72rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--txm); }
+.fh-list { display:flex; flex-direction:column; gap:.375rem; }
+.fh-item { display:flex; align-items:center; gap:.625rem; padding:.5rem .625rem; background:var(--surf); border:1px solid var(--border); border-radius:var(--r-md); cursor:pointer; transition:all var(--ease); }
+.fh-item:hover { border-color:var(--pr); background:rgba(168,85,247,.05); }
+.fh-score { font-size:.68rem; font-weight:700; color:var(--pr); min-width:2rem; }
+.fh-songs { flex:1; font-size:.72rem; color:var(--tx); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fh-songs strong { color:var(--pr); }
+.fh-replay { font-size:.65rem; color:var(--txf); margin-left:auto; flex-shrink:0; }
+
+/* PWA Install Banner verbessert */
+#installBanner { animation:slideDown .4s cubic-bezier(.16,1,.3,1); }
+@keyframes slideDown { from { transform:translateY(-100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+/* Song Writer Header flex-wrap fix */
+.writer-header { flex-wrap:wrap; }
+.writer-actions { display:flex; align-items:center; gap:.5rem; margin-left:auto; }
+
+/* ─── UPDATE OVERLAY ─────────────────────────────────────────────────────── */
+#updateOverlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn .25s ease;
+}
+#updateOverlay.visible { display: flex; }
+.update-card {
+  background: #141416; border: 1px solid rgba(168,85,247,.4);
+  border-radius: 16px; padding: 2rem 2.25rem; max-width: 420px; width: 90%;
+  box-shadow: 0 24px 80px rgba(168,85,247,.25);
+  animation: slideUp .3s ease;
+}
+.update-icon { font-size: 2.25rem; margin-bottom: .75rem; }
+.update-title { font-family: 'Cabinet Grotesk',sans-serif; font-weight: 800;
+  font-size: 1.15rem; color: #e8e6f0; margin-bottom: .35rem; }
+.update-version { font-size: .78rem; color: #a855f7; font-weight: 600;
+  background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.25);
+  border-radius: 99px; display: inline-block; padding: .15rem .65rem; margin-bottom: .875rem; }
+.update-notes { font-size: .8rem; color: #9090b0; line-height: 1.6;
+  margin-bottom: 1.25rem; border-left: 2px solid rgba(168,85,247,.3); padding-left: .75rem; }
+.update-progress-wrap { margin-bottom: 1.25rem; }
+.update-progress-bar { height: 6px; background: rgba(168,85,247,.15);
+  border-radius: 99px; overflow: hidden; margin-top: .5rem; }
+.update-progress-fill { height: 100%; background: linear-gradient(90deg,#a855f7,#06b6d4);
+  border-radius: 99px; transition: width .3s ease; width: 0; }
+.update-progress-txt { font-size: .72rem; color: var(--txm); margin-top: .375rem;
+  display: flex; justify-content: space-between; }
+.update-actions { display: flex; gap: .625rem; }
+.btn-update-install { flex: 1; padding: .625rem 1rem; border: none;
+  border-radius: 10px; background: #a855f7; color: #fff; font-size: .82rem;
+  font-weight: 700; cursor: pointer; transition: all .2s; }
+.btn-update-install:hover { background: #9333ea; transform: translateY(-1px); }
+.btn-update-install:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-update-later { padding: .625rem 1rem; border: 1px solid var(--border);
+  border-radius: 10px; background: transparent; color: var(--txm);
+  font-size: .82rem; cursor: pointer; transition: all .2s; }
+.btn-update-later:hover { background: var(--surfh); color: var(--tx); }
+
+/* Update-Status-Badge in Topbar */
+.update-badge { display:none; align-items:center; gap:.375rem; padding:.25rem .625rem;
+  border-radius:99px; background:rgba(168,85,247,.12); border:1px solid rgba(168,85,247,.3);
+  font-size:.7rem; font-weight:600; color:#a855f7; cursor:pointer; transition:all .2s; }
+.update-badge:hover { background:rgba(168,85,247,.2); }
+.update-badge.visible { display:flex; }
+.update-badge-dot { width:6px;height:6px;border-radius:50%;background:#a855f7;
+  animation:pulse 1.5s infinite; }
+
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+@keyframes pulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+</style>
+</head>
+<body>
+<div class="dash">
+
+<!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <a class="logo gAll" href="#" style="--gc:#a855f7;--gb:rgba(168,85,247,.12)">
+    <svg class="logo-icon" viewBox="0 0 32 32" fill="none" aria-label="Hirsch Music Hit Maker">
+      <!-- Hintergrund -->
+      <rect width="32" height="32" rx="7" fill="rgba(168,85,247,.15)"/>
+      <!-- GEWEIH LINKS: Hauptast + 2 Enden -->
+      <path d="M10 18 L9 12 L6 7" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M9 12 L6 10" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <path d="M9.5 9.5 L8 7" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <!-- GEWEIH RECHTS: Hauptast + 2 Enden -->
+      <path d="M22 18 L23 12 L26 7" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M23 12 L26 10" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <path d="M22.5 9.5 L24 7" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <!-- KOPF: Oval -->
+      <ellipse cx="16" cy="21" rx="6" ry="5.5" fill="#a855f7" opacity="0.9"/>
+      <!-- OHREN -->
+      <ellipse cx="10.5" cy="17.5" rx="1.8" ry="2.5" fill="#a855f7" opacity="0.75" transform="rotate(-15 10.5 17.5)"/>
+      <ellipse cx="21.5" cy="17.5" rx="1.8" ry="2.5" fill="#a855f7" opacity="0.75" transform="rotate(15 21.5 17.5)"/>
+      <!-- AUGEN -->
+      <circle cx="13.5" cy="20.5" r="1" fill="rgba(168,85,247,.25)"/>
+      <circle cx="18.5" cy="20.5" r="1" fill="rgba(168,85,247,.25)"/>
+      <!-- NASE -->
+      <ellipse cx="16" cy="24" rx="1.5" ry="1" fill="rgba(168,85,247,.35)"/>
+      <!-- Musiknote im Geweihmittelpunkt -->
+      <circle cx="16" cy="13" r="1.5" fill="#f59e0b" opacity="0.9"/>
+      <line x1="17.5" y1="13" x2="17.5" y2="9.5" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="17.5" y1="9.5" x2="20" y2="10.2" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    <div class="logo-text">Hirsch Music Hit Maker <span>Top 500+ · 8 Genres</span></div>
+  </a>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Navigation</div>
+    <button class="gb gAll active" id="nav-charts" onclick="showView('charts')" style="--gc:#a855f7;--gb:rgba(168,85,247,.12)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Charts
+    </button>
+    <button class="gb" id="nav-matcher" onclick="showView('matcher')" style="--gc:#06b6d4;--gb:rgba(6,182,212,.12)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      Song Fusion
+    </button>
+    <button class="gb" id="nav-generator" onclick="showView('generator')" style="--gc:#f59e0b;--gb:rgba(245,158,11,.12)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Musik Generator
+    </button>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Genres</div>
+    <button class="gb gAll active" data-genre="all" onclick="setGenre('all',this)">
+      <span class="gdot" style="background:var(--pr)"></span>
+      Alle Genres <span class="gcnt">4000</span>
+    </button>
+    <button class="gb gRock"     data-genre="Rock"     onclick="setGenre('Rock',this)"><span class="gdot"></span>Rock<span class="gcnt">500</span></button>
+    <button class="gb gPop"      data-genre="Pop"      onclick="setGenre('Pop',this)"><span class="gdot"></span>Pop<span class="gcnt">500</span></button>
+    <button class="gb gHipHop"   data-genre="Hip-Hop"  onclick="setGenre('Hip-Hop',this)"><span class="gdot"></span>Hip-Hop<span class="gcnt">500</span></button>
+    <button class="gb gMetal"    data-genre="Metal"    onclick="setGenre('Metal',this)"><span class="gdot"></span>Metal<span class="gcnt">500</span></button>
+    <button class="gb gCountry"  data-genre="Country"  onclick="setGenre('Country',this)"><span class="gdot"></span>Country<span class="gcnt">500</span></button>
+    <button class="gb gEDM"      data-genre="EDM"      onclick="setGenre('EDM',this)"><span class="gdot"></span>EDM<span class="gcnt">500</span></button>
+    <button class="gb gSchlager" data-genre="Schlager" onclick="setGenre('Schlager',this)"><span class="gdot"></span>Schlager<span class="gcnt">500</span></button>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Ära</div>
+    <button class="gb" data-era="pre1960" onclick="setEra('pre1960',this)" style="--gc:#f59e0b;--gb:rgba(245,158,11,.12)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Vor 1960 <span class="gcnt" id="era-cnt">500</span>
+    </button>
+    <button class="gb gAll active" data-era="all" onclick="setEra('all',this)">
+      <span class="gdot" style="background:var(--pr)"></span>
+      Alle Ären
+    </button>
+  </div>
+
+  <div class="sb-stats">
+    <div class="sstat"><span class="sstat-l">Songs gesamt</span><span class="sstat-v" id="ss-total">4000</span></div>
+    <div class="sstat"><span class="sstat-l">Ältester Song</span><span class="sstat-v" id="ss-old">1935</span></div>
+    <div class="sstat"><span class="sstat-l">Neuester Song</span><span class="sstat-v" id="ss-new">2024</span></div>
+  </div>
+</aside>
+
+<!-- ── TOPBAR ────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <span id="appVersionBadge" style="font-size:.68rem;color:var(--txf);font-family:'Space Mono',monospace;margin-right:.5rem;display:none" id="appVersionBadge"></span>
+  <button id="topbarUpdateBadge" class="update-badge" onclick="reopenUpdateDialog && reopenUpdateDialog()">
+    <span class="update-badge-dot"></span>
+    Update verfügbar
+  </button>
+  <button class="iBtn mob-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Menü">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
+  <div class="srch">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" id="searchInput" placeholder="Song, Künstler, Album…" oninput="onSearch()" data-testid="input-search">
+  </div>
+
+  <div class="tb-acts">
+    <div class="selw">
+      <label for="sortSel">Sortieren:</label>
+      <select id="sortSel" onchange="onSort()" data-testid="select-sort">
+        <option value="rank">Rang</option>
+        <option value="title">Titel A–Z</option>
+        <option value="artist">Künstler A–Z</option>
+        <option value="year-asc">Jahr ↑</option>
+        <option value="year-desc">Jahr ↓</option>
+        <option value="genre">Genre</option>
+      </select>
+    </div>
+    <span class="pg-info" id="pgInfo">Seite 1 / 1</span>
+    <button class="iBtn" id="themeBtn" onclick="toggleTheme()" aria-label="Theme wechseln" data-testid="btn-theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── MAIN ──────────────────────────────────────────────────────────── -->
+<main class="main" id="mainScroll">
+
+<!-- ════════════════════════ CHARTS VIEW ════════════════════════ -->
+<div id="view-charts" class="view active">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi" style="--gc:var(--pr)">
+      <div class="kpi-l">Songs gefunden</div>
+      <div class="kpi-v" id="kpi-cnt">4000</div>
+      <div class="kpi-s">Aktive Ergebnisse</div>
+    </div>
+    <div class="kpi" style="--gc:var(--ac2)">
+      <div class="kpi-l">Ältestes Jahr</div>
+      <div class="kpi-v" id="kpi-old">1935</div>
+      <div class="kpi-s">Frühester Titel</div>
+    </div>
+    <div class="kpi" style="--gc:var(--ac3)">
+      <div class="kpi-l">Neuestes Jahr</div>
+      <div class="kpi-v" id="kpi-new">2024</div>
+      <div class="kpi-s">Aktuellster Titel</div>
+    </div>
+    <div class="kpi" style="--gc:#10b981">
+      <div class="kpi-l">Top Künstler</div>
+      <div class="kpi-v" style="font-size:clamp(.85rem,.7rem+.5vw,1.2rem)" id="kpi-top">—</div>
+      <div class="kpi-s" id="kpi-tops">Meiste Songs</div>
+    </div>
+  </div>
+
+  <!-- Decade Chart -->
+  <div class="chart-sec">
+    <div class="sec-ttl">Songs nach Jahrzehnt</div>
+    <div class="dbars" id="dbars"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="tbl-wrap">
+    <div class="tbl-head">
+      <div class="tbl-head-left">
+        <span class="res-cnt"><strong id="res-cnt">4000</strong> Songs</span>
+        <div class="gpills" id="gpills"></div>
+      </div>
+    </div>
+
+    <div class="col-hdr">
+      <div class="ch sorted" onclick="sortBy('rank')" data-col="rank">
+        # <svg id="si-rank" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5l7 7H5z"/></svg>
+      </div>
+      <div class="ch" onclick="sortBy('title')" data-col="title">
+        Titel <svg id="si-title" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="opacity:.25"><path d="M12 5l7 7H5z"/></svg>
+      </div>
+      <div class="ch" onclick="sortBy('artist')" data-col="artist">
+        Künstler <svg id="si-artist" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="opacity:.25"><path d="M12 5l7 7H5z"/></svg>
+      </div>
+      <div class="ch" onclick="sortBy('genre')" data-col="genre">
+        Genre <svg id="si-genre" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="opacity:.25"><path d="M12 5l7 7H5z"/></svg>
+      </div>
+      <div class="ch" onclick="sortBy('year-asc')" data-col="year-asc">
+        Jahr <svg id="si-year-asc" width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="opacity:.25"><path d="M12 5l7 7H5z"/></svg>
+      </div>
+      <div class="ch" data-col="decade">Dekade</div>
+    </div>
+
+    <div style="font-size:.72rem;color:var(--txf);padding:.35rem 1.125rem .1rem;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:.3rem"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Doppelklick auf einen Song → direkt zu Song Fusion hinzufügen</div>
+<div id="songList"></div>
+    <div class="pg-bar" id="pgBar"></div>
+  </div>
+
+</div><!-- /view-charts -->
+
+<!-- ════════════════════════ FUSION MATCHER VIEW ════════════════════════ -->
+<div id="view-matcher" class="view">
+  <div class="matcher-wrap">
+
+    <div class="matcher-title">Song Fusion Matcher</div>
+    <div class="matcher-sub">Wähle zwei Songs aus dem Katalog – der Algorithmus analysiert Energie, Stimmung, Themen und Dekade, um den besten Fusion-Vorschlag zu berechnen.</div>
+
+    <!-- Two pickers + VS -->
+    <div class="matcher-grid">
+      <!-- Song A -->
+      <div class="song-picker" id="pickerA">
+        <div class="picker-lbl l1"><span>A</span> Song 1</div>
+        <div class="picker-search">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchA" placeholder="Song suchen…" oninput="pickerSearch('A')" autocomplete="off">
+        </div>
+        <div class="picker-results" id="resultsA"></div>
+        <div class="selected-display" id="displayA">
+          <div class="sd-empty">Noch kein Song ausgewählt</div>
+        </div>
+      </div>
+
+      <!-- VS -->
+      <div class="vs-circle">VS</div>
+
+      <!-- Song B -->
+      <div class="song-picker" id="pickerB">
+        <div class="picker-lbl l2"><span>B</span> Song 2</div>
+        <div class="picker-search">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchB" placeholder="Song suchen…" oninput="pickerSearch('B')" autocomplete="off">
+        </div>
+        <div class="picker-results" id="resultsB"></div>
+        <div class="selected-display" id="displayB">
+          <div class="sd-empty">Noch kein Song ausgewählt</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Match Button -->
+    <button class="match-btn" id="matchBtn" onclick="runMatch()" disabled>
+      ✦ Fusion analysieren
+    </button>
+
+    <!-- Loading Spinner (hidden) -->
+    <div class="loading-spinner" id="matchLoader" style="display:none">
+      <div class="spinner"></div>
+      <span>Analysiere Songs…</span>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="result-panel" id="resultPanel">
+      <div class="rp-header">
+        <div class="rp-score-ring">
+          <div class="rp-score-circle">
+            <svg width="72" height="72" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--border)" stroke-width="6"/>
+              <circle id="rp-arc" cx="36" cy="36" r="30" fill="none" stroke="url(#scoreGrad)" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+              <defs>
+                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#a855f7"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="rp-score-num" id="rp-score-num">—</div>
+          </div>
+        </div>
+        <div class="rp-title-block" style="flex:1">
+          <div class="fusion-title" id="rp-fusion-title">Fusion Titel</div>
+          <div class="fusion-subtitle" id="rp-fusion-sub"></div>
+        </div>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="rp-grid" id="rp-cards"></div>
+
+      <!-- Dimension Bars -->
+      <div class="lc-title" style="margin-top:.75rem">Klang-Dimensionen</div>
+      <div class="dim-bars" id="rp-dims"></div>
+
+      <!-- Lyric Concept (kurzes Konzept) -->
+      <div class="lyric-concept" id="rp-lyric">
+        <div class="lc-title">Thema &amp; Konzept</div>
+        <div class="lc-content" id="rp-lyric-content"></div>
+        <div class="lc-structure" id="rp-lyric-structure"></div>
+      </div>
+    </div>
+
+    <!-- ─── SONG WRITER PANEL ──────────────────────────────────────────── -->
+    <div class="writer-panel" id="writerPanel" style="display:none">
+
+      <!-- Header -->
+      <div class="writer-header">
+        <div class="writer-header-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="writer-title">Song Writer</div>
+        <div class="writer-sub" id="writer-song-names"></div>
+        <div class="writer-actions">
+          <button class="regen-btn" id="regenLyricsBtn" onclick="regenerateLyrics()" title="Neuen Text generieren">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            Neu generieren
+          </button>
+          <button class="copy-btn" id="copyLyricsBtn" onclick="copyLyrics()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Text kopieren
+          </button>
+        </div>
+      </div>
+
+      <!-- Dual-language lyric columns -->
+      <div class="lyric-cols">
+        <!-- English -->
+        <div class="lyric-col">
+          <div class="lyric-col-header">
+            <span class="lyric-col-flag">🇺🇸</span>
+            <span class="lyric-col-lang">American English</span>
+            <span class="lyric-col-badge badge-en">EN</span>
+          </div>
+          <div class="lyric-col-body" id="lyrics-en"></div>
+        </div>
+        <!-- German -->
+        <div class="lyric-col">
+          <div class="lyric-col-header">
+            <span class="lyric-col-flag">🇩🇪</span>
+            <span class="lyric-col-lang">Deutsch</span>
+            <span class="lyric-col-badge badge-de">DE</span>
+          </div>
+          <div class="lyric-col-body" id="lyrics-de"></div>
+        </div>
+      </div>
+
+      <!-- Music Blueprint -->
+      <div class="blueprint-panel">
+        <div class="blueprint-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ac3)" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <div class="blueprint-title">Music Blueprint</div>
+        </div>
+
+        <!-- Parameter Kacheln -->
+        <div class="bp-grid" id="bp-cards"></div>
+
+        <!-- Instrumente -->
+        <div class="bp-instruments">
+          <div class="bp-instr-lbl">Instrumente</div>
+          <div class="bp-instr-grid">
+            <div>
+              <div class="bp-instr-col-hdr" id="bp-instr-hdr1"></div>
+              <div id="bp-instr-1" style="display:flex;flex-wrap:wrap;gap:.3rem"></div>
+            </div>
+            <div>
+              <div class="bp-instr-col-hdr" id="bp-instr-hdr2"></div>
+              <div id="bp-instr-2" style="display:flex;flex-wrap:wrap;gap:.3rem"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamik-Kurve -->
+        <div class="bp-dynamic">
+          <div class="bp-dyn-lbl">Dynamik-Kurve</div>
+          <div class="bp-dyn-val" id="bp-dynamic"></div>
+        </div>
+
+        <!-- Produktions-Hinweis -->
+        <div class="bp-prod">
+          <div class="bp-prod-lbl">Produktionshinweis</div>
+          <div class="bp-prod-val" id="bp-prod"></div>
+        </div>
+      </div>
+
+    </div><!-- /writerPanel -->
+
+    <!-- Fusion History -->
+    <div class="fh-section" id="fusionHistory" style="display:none">
+      <div class="fh-header">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Letzte Analysen
+      </div>
+      <div class="fh-list" id="fusionHistoryList"></div>
+    </div>
+
+    <!-- Random Pairs Section -->
+    <div class="random-sect">
+      <div class="rsect-header">
+        <div class="rsect-title">Top Fusion-Paare entdecken</div>
+        <button class="refresh-pairs-btn" id="refreshPairsBtn" onclick="refreshRandomPairs()" title="6 neue Paare laden">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Neue Paare
+        </button>
+      </div>
+      <div class="random-grid" id="randomGrid">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+          <span>Berechne beste Paare…</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /view-matcher -->
+
+<!-- ════════════════════════ MUSIK GENERATOR VIEW ════════════════════════ -->
+<div id="view-generator" class="view">
+  <div class="gen-wrap">
+
+    <!-- Hero -->
+    <div class="gen-hero">
+      <div class="gen-hero-top">
+        <div class="gen-hero-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div>
+          <div class="gen-hero-title">Musik Generator</div>
+        </div>
+      </div>
+      <div class="gen-hero-sub">Aus deinem Fusion-Song wird automatisch ein kompletter Musik-Prompt generiert &ndash; perfekt vorbereitet für die führenden KI-Musikgeneratoren. Kopiere den Prompt, wähle eine Plattform und erstelle deinen Song in Sekunden.</div>
+      <div class="gen-source-badge" id="gen-badge">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="gen-badge-text">Noch kein Fusion-Song analysiert &mdash; gehe zu Song Fusion und analysiere zwei Songs</span>
+      </div>
+    </div>
+
+    <!-- Hinweis wenn kein Song analysiert -->
+    <div class="gen-no-data" id="gen-no-data">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span>Gehe zuerst zu <strong style="color:var(--tx);cursor:pointer" onclick="showView('matcher')">Song Fusion</strong>, wähle zwei Songs aus und klicke auf &bdquo;Fusion analysieren&ldquo;. Der Prompt wird dann hier automatisch befüllt.</span>
+    </div>
+
+    <!-- Prompt Sektion -->
+    <div class="prompt-section">
+      <div class="prompt-label">Musik-Prompt für KI-Generatoren <span></span></div>
+      <div class="prompt-box">
+        <textarea class="prompt-textarea" id="genPrompt" spellcheck="false" placeholder="Analysiere zuerst zwei Songs im Song Fusion Tab &mdash; der Prompt wird dann hier automatisch generiert..."></textarea>
+      </div>
+      <div class="prompt-tag-row" id="promptTags"></div>
+      <div class="prompt-actions">
+        <button class="prompt-copy-btn" id="promptCopyBtn" onclick="copyPrompt()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Prompt kopieren
+        </button>
+        <button class="copy-btn" id="promptResetBtn" onclick="resetPrompt()" style="display:none">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.1"/></svg>
+          Zurücksetzen
+        </button>
+        <span class="prompt-hint">Prompt bearbeiten, dann kopieren und in eine Plattform einfügen</span>
+      </div>
+    </div>
+
+    <!-- Platform Cards -->
+    <div class="platforms-label">KI-Musikgeneratoren wählen <span></span></div>
+    <div class="platform-grid">
+
+      <!-- Suno -->
+      <a class="platform-card suno" href="https://suno.com" target="_blank" rel="noopener" onclick="openPlatform('suno',event)">
+        <div class="plat-top">
+          <div class="plat-logo suno-logo">S</div>
+          <div>
+            <div class="plat-name">Suno</div>
+            <div class="plat-tagline">Vollständige Songs mit Vocals</div>
+          </div>
+        </div>
+        <div class="plat-features">
+          <span class="plat-feat">Vocals + Musik</span>
+          <span class="plat-feat">Custom Lyrics</span>
+          <span class="plat-feat">50+ Genres</span>
+          <span class="plat-feat">MP3 Download</span>
+        </div>
+        <div class="plat-cta">
+          <span class="plat-cta-text suno-cta">→ suno.com &ouml;ffnen</span>
+          <span class="plat-free">Kostenlos</span>
+        </div>
+      </a>
+
+      <!-- Udio -->
+      <a class="platform-card udio" href="https://www.udio.com" target="_blank" rel="noopener" onclick="openPlatform('udio',event)">
+        <div class="plat-top">
+          <div class="plat-logo udio-logo">U</div>
+          <div>
+            <div class="plat-name">Udio</div>
+            <div class="plat-tagline">Studio-Qualität &amp; Erweiterungen</div>
+          </div>
+        </div>
+        <div class="plat-features">
+          <span class="plat-feat">High Quality</span>
+          <span class="plat-feat">Song Extend</span>
+          <span class="plat-feat">Stems Export</span>
+          <span class="plat-feat">10 Songs/Tag gratis</span>
+        </div>
+        <div class="plat-cta">
+          <span class="plat-cta-text udio-cta">→ udio.com öffnen</span>
+          <span class="plat-free">Kostenlos</span>
+        </div>
+      </a>
+
+      <!-- Beatoven -->
+      <a class="platform-card beatoven" href="https://www.beatoven.ai" target="_blank" rel="noopener" onclick="openPlatform('beatoven',event)">
+        <div class="plat-top">
+          <div class="plat-logo beatoven-logo">B</div>
+          <div>
+            <div class="plat-name">Beatoven.ai</div>
+            <div class="plat-tagline">Stimmungs-basierte Instrumentals</div>
+          </div>
+        </div>
+        <div class="plat-features">
+          <span class="plat-feat">Instrumental</span>
+          <span class="plat-feat">Mood-basiert</span>
+          <span class="plat-feat">Royalty-Free</span>
+          <span class="plat-feat">Loops &amp; Stems</span>
+        </div>
+        <div class="plat-cta">
+          <span class="plat-cta-text beatoven-cta">→ beatoven.ai öffnen</span>
+          <span class="plat-free">Kostenlos</span>
+        </div>
+      </a>
+
+    </div><!-- /platform-grid -->
+
+    <!-- Schritt-für-Schritt Anleitung -->
+    <div class="gen-steps">
+      <div class="gen-steps-title">So generierst du deinen Song</div>
+      <div class="gen-step-list">
+        <div class="gen-step">
+          <div class="gen-step-num">1</div>
+          <div class="gen-step-text"><strong>Song Fusion öffnen:</strong> Gehe zu &bdquo;Song Fusion&ldquo; in der Navigation, wähle zwei Songs und klicke auf &bdquo;Fusion analysieren&ldquo;. Der Musik-Prompt hier wird automatisch befüllt.</div>
+        </div>
+        <div class="gen-step">
+          <div class="gen-step-num">2</div>
+          <div class="gen-step-text"><strong>Prompt kopieren:</strong> Klicke auf &bdquo;Prompt kopieren&ldquo; &mdash; der komplette Prompt mit Stil, Genre, BPM und Stimmung ist bereits fertig formuliert.</div>
+        </div>
+        <div class="gen-step">
+          <div class="gen-step-num">3</div>
+          <div class="gen-step-text"><strong>Plattform wählen &amp; öffnen:</strong> Klicke auf <strong>Suno</strong> (Vocals + vollständiger Song), <strong>Udio</strong> (Studio-Qualität), oder <strong>Beatoven</strong> (rein instrumental). Die Seite öffnet sich in einem neuen Tab.</div>
+        </div>
+        <div class="gen-step">
+          <div class="gen-step-num">4</div>
+          <div class="gen-step-text"><strong>Prompt einfügen:</strong> Im Textfeld der Plattform den Prompt einfügen (Strg+V / Cmd+V) &mdash; bei Suno/Udio auch den generierten Songtext direkt als Custom Lyrics einfügen.</div>
+        </div>
+        <div class="gen-step">
+          <div class="gen-step-num">5</div>
+          <div class="gen-step-text"><strong>Generieren:</strong> Song erstellen lassen, anhören, verfeinern &mdash; fertig!</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /view-generator -->
+
+</main>
+</div>
+
+<!-- Install Banner -->
+<div id="installBanner" style="display:none;position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a0a2e,#2d1050);border:1px solid rgba(168,85,247,.4);border-radius:1rem;padding:.75rem 1.125rem;align-items:center;gap:.75rem;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:9999;min-width:280px;max-width:400px;">
+  <div style="flex:1"><div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:.875rem;color:#e8e6f0">Hirsch Music Hit Maker installieren</div><div style="font-size:.7rem;color:#8080a0;margin-top:2px">Als Desktop-App öffnen &amp; schließen</div></div>
+  <button onclick="installPWA()" style="background:#a855f7;color:#fff;border:none;border-radius:.5rem;padding:.4375rem .875rem;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap">Installieren</button>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#8080a0;font-size:1.1rem;cursor:pointer;padding:0 .2rem;line-height:1">✕</button>
+</div>
+
+<!-- Core navigation — defined early so clicks work before data loads -->
+<script>
+const VIEWS = ['charts','matcher','generator'];
+function showView(v) {
+  VIEWS.forEach(function(id) {
+    var view = document.getElementById('view-' + id);
+    var nb   = document.getElementById('nav-' + id);
+    if (view) view.classList.toggle('active', id === v);
+    if (nb)   nb.classList.toggle('active', id === v);
+  });
+  document.querySelectorAll('.gb[data-genre]').forEach(function(b) {
+    b.style.opacity = v === 'charts' ? '1' : '.45';
+    b.style.pointerEvents = v === 'charts' ? '' : 'none';
+  });
+  var ms = document.getElementById('mainScroll');
+  if (ms) ms.scrollTo({top:0, behavior:'smooth'});
+  // Deferred boot — matcherBooted / refreshGeneratorView may not exist yet
+  if (v === 'matcher') {
+    if (typeof bootMatcher === 'function' && !window.matcherBooted) bootMatcher();
+  }
+  if (v === 'generator') {
+    if (typeof refreshGeneratorView === 'function') refreshGeneratorView();
+  }
+}
+</script>
+
+<!-- Data files -->
+<script src="data-rock.js"></script>
+<script src="data-pop.js"></script>
+<script src="data-hiphop.js"></script>
+<script src="data-metal.js"></script>
+<script src="data-country.js"></script>
+<script src="data-edm.js"></script>
+<script src="data-schlager.js"></script>
+<script src="data-classics.js"></script>
+
+<script>
+// ─── INIT ────────────────────────────────────────────────────────────────────
+const ALL_SONGS = [
+  ...SONGS_ROCK, ...SONGS_POP, ...SONGS_HIPHOP, ...SONGS_METAL,
+  ...SONGS_COUNTRY, ...SONGS_EDM, ...SONGS_SCHLAGER, ...SONGS_CLASSICS
+];
+
+const GENRES = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager'];
+const GC = { Rock:'#f43f5e', Pop:'#ec4899', 'Hip-Hop':'#f59e0b', Metal:'#6366f1', Country:'#10b981', EDM:'#06b6d4', Schlager:'#f97316' };
+const GCL = { Rock:'gRock', Pop:'gPop', 'Hip-Hop':'gHipHop', Metal:'gMetal', Country:'gCountry', EDM:'gEDM', Schlager:'gSchlager' };
+const PAGE_SIZE = 100;
+
+let state = { genre:'all', era:'all', query:'', sort:'rank', page:1, filtered:[] };
+
+// ─── STARTUP ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  buildPills();
+  applyFilters();
+  // Update pre-1960 count
+  const pre60 = ALL_SONGS.filter(s => s.year < 1960).length;
+  const ecnt = document.getElementById('era-cnt');
+  if (ecnt) ecnt.textContent = pre60;
+});
+
+// ─── PILLS ───────────────────────────────────────────────────────────────────
+function buildPills() {
+  const c = document.getElementById('gpills');
+  ['all',...GENRES].forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'gpill ' + (g === 'all' ? 'gAll active' : GCL[g]);
+    if (g === 'all') b.style.cssText = '--gc:#a855f7;--gb:rgba(168,85,247,.12)';
+    b.dataset.genre = g;
+    b.textContent = g === 'all' ? 'Alle' : g;
+    b.addEventListener('click', () => setGenre(g, null));
+    c.appendChild(b);
+  });
+}
+
+// ─── SET GENRE ───────────────────────────────────────────────────────────────
+function setGenre(g, btn) {
+  state.genre = g; state.page = 1;
+  document.querySelectorAll('.gb').forEach(b => b.classList.toggle('active', b.dataset.genre === g));
+  document.querySelectorAll('.gpill').forEach(b => b.classList.toggle('active', b.dataset.genre === g));
+  applyFilters();
+}
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+let searchTimer;
+function onSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.query = document.getElementById('searchInput').value.toLowerCase().trim();
+    state.page = 1;
+    applyFilters();
+  }, 180);
+}
+
+// ─── SORT ────────────────────────────────────────────────────────────────────
+function onSort() {
+  state.sort = document.getElementById('sortSel').value;
+  state.page = 1;
+  updateSortIcons();
+  applyFilters();
+}
+
+function setEra(era, btn) {
+  state.era = era;
+  document.querySelectorAll('.gb[data-era]').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  state.page = 1;
+  applyFilters();
+}
+
+function sortBy(col) {
+  const sel = document.getElementById('sortSel');
+  if (col === 'year-asc') {
+    sel.value = (state.sort === 'year-asc') ? 'year-desc' : 'year-asc';
+  } else {
+    sel.value = col;
+  }
+  state.sort = sel.value;
+  state.page = 1;
+  updateSortIcons();
+  applyFilters();
+}
+
+function updateSortIcons() {
+  const colMap = {'rank':'rank','title':'title','artist':'artist','genre':'genre','year-asc':'year-asc','year-desc':'year-asc'};
+  ['rank','title','artist','genre','year-asc'].forEach(c => {
+    const el = document.getElementById('si-' + c);
+    if (!el) return;
+    const active = (colMap[state.sort] || state.sort) === c;
+    el.style.opacity = active ? '1' : '0.25';
+    el.parentElement.classList.toggle('sorted', active);
+  });
+}
+
+// ─── FILTER + SORT ───────────────────────────────────────────────────────────
+function applyFilters() {
+  let f = ALL_SONGS;
+  if (state.genre !== 'all') f = f.filter(s => s.genre === state.genre);
+  if (state.era === 'pre1960') f = f.filter(s => s.year < 1960);
+  if (state.query) {
+    const q = state.query;
+    f = f.filter(s =>
+      s.title.toLowerCase().includes(q) ||
+      s.artist.toLowerCase().includes(q) ||
+      (s.album && s.album.toLowerCase().includes(q))
+    );
+  }
+  // Sort
+  f = [...f].sort((a, b) => {
+    switch (state.sort) {
+      case 'rank':      return GENRES.indexOf(a.genre) - GENRES.indexOf(b.genre) || a.rank - b.rank;
+      case 'title':     return a.title.localeCompare(b.title, 'de');
+      case 'artist':    return a.artist.localeCompare(b.artist, 'de');
+      case 'year-asc':  return a.year - b.year;
+      case 'year-desc': return b.year - a.year;
+      case 'genre':     return a.genre.localeCompare(b.genre) || a.rank - b.rank;
+      default:          return 0;
+    }
+  });
+  state.filtered = f;
+  render();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  const { filtered, page } = state;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const curPage = Math.min(page, totalPages);
+  state.page = curPage;
+
+  const start = (curPage - 1) * PAGE_SIZE;
+  const slice = filtered.slice(start, start + PAGE_SIZE);
+
+  updateKPIs(filtered);
+  updateChart(filtered);
+  updateResultCount(filtered.length);
+  renderRows(slice, start);
+  renderPagination(curPage, totalPages);
+  document.getElementById('pgInfo').textContent = `Seite ${curPage} / ${totalPages}`;
+}
+
+// ─── ROWS ────────────────────────────────────────────────────────────────────
+function renderRows(songs, offset) {
+  const c = document.getElementById('songList');
+  if (!songs.length) {
+    c.innerHTML = '<div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><p>Keine Songs gefunden.</p></div>';
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  songs.forEach((s, i) => {
+    const gk = GCL[s.genre] || 'gRock';
+    const decade = Math.floor(s.year / 10) * 10 + 'er';
+    const rk = s.rank;
+    const rkCls = rk === 1 ? ' rk1' : rk === 2 ? ' rk2' : rk === 3 ? ' rk3' : '';
+    const rkTxt = rk <= 3 ? ['🥇','🥈','🥉'][rk-1] : String(rk).padStart(3,' ');
+    const row = document.createElement('div');
+    row.className = 'srow';
+    row.title = 'Doppelklick → zu Song Fusion hinzufügen';
+    row.style.cursor = 'pointer';
+    row.innerHTML = `
+      <div class="rk${rkCls}">${rkTxt}</div>
+      <div class="ti"><span class="ti-t">${esc(s.title)}</span><span class="ti-a">${esc(s.album||'')}</span></div>
+      <div class="ar">${esc(s.artist)}</div>
+      <div class="${gk}"><span class="gbadge ${gk}">${s.genre}</span></div>
+      <div class="yr">${s.year}</div>
+      <div class="dc">${decade}</div>`;
+    row.addEventListener('dblclick', function() { addToFusion(s); });
+    frag.appendChild(row);
+  });
+  c.innerHTML = '';
+  c.appendChild(frag);
+}
+
+// ─── DOPPELKLICK → SONG FUSION ──────────────────────────────────────────────
+function addToFusion(song) {
+  // Wechsle zur Fusion-Ansicht
+  showView('matcher');
+  // Warte bis Matcher + DOM bereit
+  setTimeout(function() {
+    var slot;
+    if (!selectedA) {
+      // A ist leer → in A
+      slot = 'A';
+      selectedA = song;
+    } else if (!selectedB) {
+      // A belegt, B leer → in B
+      slot = 'B';
+      selectedB = song;
+    } else {
+      // Beide belegt → A ersetzen (B bleibt)
+      slot = 'A';
+      selectedA = song;
+    }
+    updateDisplay(slot, song);
+    document.getElementById('matchBtn').disabled = !(selectedA && selectedB);
+    document.getElementById('resultPanel').classList.remove('visible');
+    // Scroll zu den Pickern
+    var picker = document.getElementById('picker' + slot);
+    if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showFusionToast('✓ "' + song.title + '" → Song ' + slot);
+  }, 150);
+}
+
+function showFusionToast(msg) {
+  var existing = document.getElementById('fusionToast');
+  if (existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'fusionToast';
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);' +
+    'background:#a855f7;color:#fff;padding:.5rem 1.25rem;border-radius:2rem;' +
+    'font-size:.82rem;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(168,85,247,.4);' +
+    'animation:toastIn .25s ease;pointer-events:none;white-space:nowrap;';
+  document.body.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity .3s';
+    setTimeout(function() { t.remove(); }, 300);
+  }, 2200);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── PAGINATION ───────────────────────────────────────────────────────────────
+function renderPagination(cur, total) {
+  const bar = document.getElementById('pgBar');
+  if (total <= 1) { bar.innerHTML = ''; return; }
+  let pages = [];
+  if (total <= 9) {
+    pages = Array.from({length:total}, (_,i) => i+1);
+  } else {
+    pages = [1];
+    if (cur > 3) pages.push('…');
+    for (let p = Math.max(2, cur-1); p <= Math.min(total-1, cur+1); p++) pages.push(p);
+    if (cur < total-2) pages.push('…');
+    pages.push(total);
+  }
+  bar.innerHTML = `
+    <button class="pg-btn" onclick="goPage(${cur-1})" ${cur===1?'disabled':''}>‹</button>
+    ${pages.map(p => p === '…'
+      ? `<span class="pg-dots">…</span>`
+      : `<button class="pg-btn${p===cur?' cur':''}" onclick="goPage(${p})">${p}</button>`
+    ).join('')}
+    <button class="pg-btn" onclick="goPage(${cur+1})" ${cur===total?'disabled':''}>›</button>`;
+}
+
+function goPage(p) {
+  const total = Math.ceil(state.filtered.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  state.page = p;
+  render();
+  document.getElementById('mainScroll').scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─── KPIs ────────────────────────────────────────────────────────────────────
+function updateKPIs(songs) {
+  if (!songs.length) {
+    ['kpi-cnt','kpi-old','kpi-new','kpi-top'].forEach(id => document.getElementById(id).textContent = '—');
+    ['ss-total','ss-old','ss-new'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const years = songs.map(s => s.year);
+  const old = Math.min(...years), nw = Math.max(...years);
+  const ac = {};
+  songs.forEach(s => ac[s.artist] = (ac[s.artist]||0)+1);
+  const top = Object.entries(ac).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('kpi-cnt').textContent = songs.length.toLocaleString('de');
+  document.getElementById('kpi-old').textContent = old;
+  document.getElementById('kpi-new').textContent = nw;
+  document.getElementById('kpi-top').textContent = top[0];
+  document.getElementById('kpi-tops').textContent = top[1] + ' Songs';
+  document.getElementById('ss-total').textContent = songs.length.toLocaleString('de');
+  document.getElementById('ss-old').textContent = old;
+  document.getElementById('ss-new').textContent = nw;
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+function updateChart(songs) {
+  const c = document.getElementById('dbars');
+  const dec = {};
+  songs.forEach(s => { const d = Math.floor(s.year/10)*10; dec[d]=(dec[d]||0)+1; });
+  const sorted = Object.entries(dec).sort((a,b)=>+a[0]-+b[0]);
+  if (!sorted.length) { c.innerHTML=''; return; }
+  const mx = Math.max(...sorted.map(d=>d[1]));
+  c.innerHTML = sorted.map(([d,n]) => {
+    const h = Math.max(2, Math.round(n/mx*70));
+    return `<div class="dbar-wrap" title="${d}er: ${n} Songs"><div class="dbar" style="height:${h}px"></div><div class="dbar-lbl">${String(d).slice(2)}er</div></div>`;
+  }).join('');
+}
+
+// ─── MISC ────────────────────────────────────────────────────────────────────
+function updateResultCount(n) {
+  document.getElementById('res-cnt').textContent = n.toLocaleString('de');
+}
+
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeBtn').innerHTML = isDark
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
+}
+
+// ─── PWA ─────────────────────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  const b = document.getElementById('installBanner');
+  b.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+});
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    document.getElementById('installBanner').style.display = 'none';
+  });
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+
+// ─── VIEW SWITCHING ──────────────────────────────────────────────────────────
+// showView + VIEWS defined earlier (before data scripts)
+</script>
+
+<!-- Matcher Engine -->
+<script src="matcher-engine.js"></script>
+
+<script>
+// ─── MATCHER STATE ────────────────────────────────────────────────────────────
+let matcherBooted = false;
+let selectedA = null;
+let selectedB = null;
+
+// ─── BOOT MATCHER ─────────────────────────────────────────────────────────────
+function bootMatcher() {
+  matcherBooted = true;
+  loadRandomPairs();
+}
+
+// ─── PICKER SEARCH ────────────────────────────────────────────────────────────
+function pickerSearch(slot) {
+  const q = document.getElementById('search' + slot).value.toLowerCase().trim();
+  const res = document.getElementById('results' + slot);
+  if (!q || q.length < 2) { res.innerHTML = ''; return; }
+  const hits = ALL_SONGS.filter(s =>
+    s.title.toLowerCase().includes(q) ||
+    s.artist.toLowerCase().includes(q)
+  ).slice(0, 30);
+  if (!hits.length) {
+    res.innerHTML = '<div style="padding:.5rem .625rem;font-size:.75rem;color:var(--txf)">Keine Treffer</div>';
+    return;
+  }
+  const other = slot === 'A' ? selectedB : selectedA;
+  res.innerHTML = hits.map(s => {
+    const isSel = (slot==='A' && selectedA && selectedA.id===s.id) || (slot==='B' && selectedB && selectedB.id===s.id);
+    const isOther = other && other.id === s.id;
+    const cls = isSel ? 'picker-item selected' : (slot==='B' && isSel ? 'picker-item selected2' : 'picker-item');
+    const gc = GC[s.genre] || '#a855f7';
+    return `<div class="${cls}" onclick="selectSong('${slot}', ${s.id})">
+      <div class="pi-title">${esc(s.title)}</div>
+      <div class="pi-meta">${esc(s.artist)} · <span style="color:${gc};font-weight:700">${s.genre}</span> · ${s.year}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── SELECT SONG ─────────────────────────────────────────────────────────────
+function selectSong(slot, id) {
+  const song = ALL_SONGS.find(s => s.id === id);
+  if (!song) return;
+  if (slot === 'A') selectedA = song;
+  else selectedB = song;
+
+  // Update display
+  updateDisplay(slot, song);
+  // Clear search
+  document.getElementById('search' + slot).value = '';
+  document.getElementById('results' + slot).innerHTML = '';
+  // Enable button if both selected
+  document.getElementById('matchBtn').disabled = !(selectedA && selectedB);
+  // Hide old result
+  document.getElementById('resultPanel').classList.remove('visible');
+}
+
+function updateDisplay(slot, song) {
+  const d = document.getElementById('display' + slot);
+  const isSec = slot === 'B';
+  const gc = GC[song.genre] || '#a855f7';
+  const borderClass = isSec ? 'has-song2' : 'has-song';
+  d.className = 'selected-display ' + borderClass;
+  d.innerHTML = `
+    <div class="sd-title">${esc(song.title)}</div>
+    <div class="sd-meta">${esc(song.artist)} · ${song.year}</div>
+    <span class="sd-badge" style="background:${gc}22;color:${gc};border:1px solid ${gc}44">${song.genre}</span>
+  `;
+}
+
+// ─── RUN MATCH ────────────────────────────────────────────────────────────────
+function runMatch() {
+  if (!selectedA || !selectedB) return;
+  const btn = document.getElementById('matchBtn');
+  const loader = document.getElementById('matchLoader');
+  const panel = document.getElementById('resultPanel');
+  btn.disabled = true;
+  loader.style.display = 'flex';
+  panel.classList.remove('visible');
+
+  setTimeout(() => {
+    try {
+      const matchInfo = matchScore(selectedA, selectedB);
+      const concept = generateFusionConcept(selectedA, selectedB, matchInfo);
+      renderResultPanel(matchInfo, concept, selectedA, selectedB);
+      panel.classList.add('visible');
+    } catch(e) {
+      console.error('Match error:', e);
+    }
+    loader.style.display = 'none';
+    btn.disabled = false;
+    document.getElementById('resultPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 400);
+}
+
+// ─── RENDER RESULT PANEL ──────────────────────────────────────────────────────
+function renderResultPanel(info, concept, s1, s2) {
+  // Score ring
+  const pct = Math.round(info.score * 100);
+  const circ = 188.5;
+  const offset = circ - (circ * info.score);
+  document.getElementById('rp-arc').style.strokeDashoffset = offset;
+  document.getElementById('rp-score-num').textContent = pct + '%';
+
+  // Title
+  document.getElementById('rp-fusion-title').textContent = concept.fusionTitle;
+  document.getElementById('rp-fusion-sub').textContent =
+    `${s1.title} × ${s2.title}  ·  Kompatibilität: ${pct}%`;
+
+  // Info cards
+  const scoreLabel = pct >= 85 ? 'Perfekte Fusion' : pct >= 70 ? 'Sehr gut' : pct >= 55 ? 'Gut' : pct >= 40 ? 'Interessant' : 'Herausfordernd';
+  const cards = [
+    { lbl:'Stil-Fusion', val: concept.styleBlend, sub: concept.genres },
+    { lbl:'Energie', val: concept.energyDesc, sub: `${Math.round((info.energy1+info.energy2)/2)}/10 Ø` },
+    { lbl:'Stimmung', val: concept.moodBlend, sub: `${info.mood1} × ${info.mood2}` },
+    { lbl:'Hauptthema', val: concept.mainTheme, sub: concept.themeDesc },
+    { lbl:'Match-Level', val: scoreLabel, sub: `Score: ${pct}%` },
+    { lbl:'Songstruktur', val: (concept.structure && concept.structure.name) ? concept.structure.name : (concept.structure || ''), sub: (concept.structure && concept.structure.desc) ? concept.structure.desc : 'Empfehlung' },
+  ];
+  document.getElementById('rp-cards').innerHTML = cards.map(c =>
+    `<div class="rp-card">
+      <div class="rp-card-lbl">${c.lbl}</div>
+      <div class="rp-card-val">${c.val}</div>
+      <div class="rp-card-sub">${c.sub}</div>
+    </div>`
+  ).join('');
+
+  // Dimension bars
+  const dims = [
+    { lbl:'Energie A', v: info.energy1, c:'#a855f7' },
+    { lbl:'Energie B', v: info.energy2, c:'#06b6d4' },
+    { lbl:'Valenz A',  v: Math.round((buildProfile(s1).valence||5)*10)/10, c:'#f59e0b' },
+    { lbl:'Valenz B',  v: Math.round((buildProfile(s2).valence||5)*10)/10, c:'#10b981' },
+    { lbl:'Tempo A',   v: Math.round((buildProfile(s1).tempo||5)*10)/10, c:'#f43f5e' },
+    { lbl:'Tempo B',   v: Math.round((buildProfile(s2).tempo||5)*10)/10, c:'#6366f1' },
+  ];
+  document.getElementById('rp-dims').innerHTML = dims.map(d =>
+    `<div class="dim-bar-row">
+      <span class="dim-lbl">${d.lbl}</span>
+      <div class="dim-track"><div class="dim-fill" style="width:${d.v*10}%;background:${d.c}60"></div></div>
+      <span class="dim-val">${d.v.toFixed(1)}</span>
+    </div>`
+  ).join('');
+
+  // Lyric concept (kurze Konzeptbeschreibung bleibt)
+  document.getElementById('rp-lyric-content').textContent = concept.lyricConcept;
+  document.getElementById('rp-lyric-structure').innerHTML = `
+    <div class="lc-struct-lbl">Song-Aufbau</div>
+    <div class="lc-struct-val">${concept.structure ? concept.structure.name || concept.structure : ''}</div>
+    <div class="lc-struct-desc">Einflüsse: ${Array.isArray(concept.influences) ? concept.influences.join(' & ') : concept.influences}</div>
+  `;
+
+  // ─── SONG WRITER & BLUEPRINT ───────────────────────────────────────────────
+  _lastS1 = s1; _lastS2 = s2; _lastMatchInfo = info; _lastConcept = concept;
+  _lyricSeed = 0;
+  // Blueprint sofort rendern (lokal, kein API)
+  const blueprint = generateMusicBlueprint(s1, s2, info, concept);
+  document.getElementById('writerPanel').style.display = 'block';
+  // KI-Lyrics asynchron laden
+  renderSongWriterLoading(s1, s2);
+  fetchAILyrics(s1, s2, info, 0).then(lyrics => {
+    renderSongWriter(lyrics, blueprint, s1, s2);
+    addFusionHistory(s1, s2, info);
+    if (typeof storeGeneratorData === 'function') {
+      storeGeneratorData(s1, s2, info, concept, blueprint, lyrics.en || {});
+    }
+  });
+
+  // Smooth scroll zum Ergebnis
+  setTimeout(() => {
+    document.getElementById('resultPanel').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 120);
+
+  // Generator Data wird nach AI-Lyrics gespeichert (in fetchAILyrics.then)
+}
+
+// ─── RENDER SONG WRITER ─────────────────────────────────────────────────────────
+let _currentLyricsEN = '';
+let _currentLyricsDE = '';
+// Gespeicherter Zustand für Neu-Generierung + History
+let _lastS1 = null, _lastS2 = null, _lastMatchInfo = null, _lastConcept = null;
+let _lyricSeed = 0;
+let _fusionHistory = []; // max 5 Einträge
+
+function renderSongWriter(lyrics, blueprint, s1, s2) {
+  // Song names im Header
+  document.getElementById('writer-song-names').textContent =
+    `„${s1.title}“ × „${s2.title}“`;
+
+  // Sections
+  const sections = [
+    { key:'intro',     label:'Intro',       cls:'lbl-intro' },
+    { key:'verse1',    label:'Strophe 1',   cls:'lbl-verse' },
+    { key:'preChorus', label:'Pre-Chorus',  cls:'lbl-prechorus' },
+    { key:'chorus',    label:'Refrain',     cls:'lbl-chorus' },
+    { key:'verse2',    label:'Strophe 2',   cls:'lbl-verse' },
+    { key:'bridge',    label:'Bridge',      cls:'lbl-bridge' },
+    { key:'outro',     label:'Outro',       cls:'lbl-outro' },
+  ];
+
+  function buildLyricHTML(lang) {
+    return sections.map(s => {
+      const text = (lyrics[lang] && lyrics[lang][s.key]) || '';
+      if (!text) return '';
+      return `<div class="lyric-section">
+        <div class="lyric-sec-lbl ${s.cls}">${s.label}</div>
+        <div class="lyric-sec-text">${esc(text)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const enHTML = buildLyricHTML('en');
+  const deHTML = buildLyricHTML('de');
+  document.getElementById('lyrics-en').innerHTML = enHTML;
+  document.getElementById('lyrics-de').innerHTML = deHTML;
+
+  // Für Copy speichern
+  _currentLyricsEN = sections.map(s => {
+    const t = lyrics.en && lyrics.en[s.key];
+    return t ? `[${s.label.toUpperCase()}]\n${t}` : '';
+  }).filter(Boolean).join('\n\n');
+  _currentLyricsDE = sections.map(s => {
+    const t = lyrics.de && lyrics.de[s.key];
+    return t ? `[${s.label.toUpperCase()}]\n${t}` : '';
+  }).filter(Boolean).join('\n\n');
+
+  // ─── Blueprint Cards
+  const bpCards = [
+    { icon:'🎼', lbl:'Fusion-Genre',  val: blueprint.fusionGenre,     sub: blueprint.fusionFeel },
+    { icon:'🎵', lbl:'Tonart',         val: blueprint.suggestedKey,     sub: 'Empfohlene Key' },
+    { icon:'⏱',   lbl:'Tempo (BPM)',   val: String(blueprint.suggestedBPM) + ' BPM', sub: blueprint.bpmRange },
+    { icon:'🎯', lbl:'Taktart',        val: blueprint.timeSignature,    sub: 'Taktstruktur' },
+  ];
+  document.getElementById('bp-cards').innerHTML = bpCards.map(c =>
+    `<div class="bp-card">
+      <div class="bp-card-icon">${c.icon}</div>
+      <div class="bp-card-lbl">${c.lbl}</div>
+      <div class="bp-card-val">${esc(c.val)}</div>
+      <div class="bp-card-sub">${esc(c.sub)}</div>
+    </div>`
+  ).join('');
+
+  // Instrumente
+  const gc1 = GC[s1.genre] || '#a855f7';
+  const gc2 = GC[s2.genre] || '#06b6d4';
+  document.getElementById('bp-instr-hdr1').innerHTML =
+    `<span style="width:8px;height:8px;border-radius:50%;background:${gc1};display:inline-block"></span>${s1.genre}`;
+  document.getElementById('bp-instr-hdr2').innerHTML =
+    `<span style="width:8px;height:8px;border-radius:50%;background:${gc2};display:inline-block"></span>${s2.genre}`;
+  document.getElementById('bp-instr-1').innerHTML =
+    blueprint.genre1Instruments.map(i => `<span class="bp-instr-tag">${esc(i)}</span>`).join('');
+  document.getElementById('bp-instr-2').innerHTML =
+    blueprint.genre2Instruments.map(i => `<span class="bp-instr-tag">${esc(i)}</span>`).join('');
+
+  // Dynamik
+  document.getElementById('bp-dynamic').textContent = blueprint.dynamicCurve;
+  // Produktion
+  document.getElementById('bp-prod').textContent = blueprint.productionNotes;
+}
+
+// ─── KI LYRICS API ───────────────────────────────────────────────────────────
+const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '__PORT_5000__';
+
+async function fetchAILyrics(s1, s2, matchInfo, regenSeed) {
+  try {
+    const res = await fetch(API_BASE + '/api/generate-lyrics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        s1: { id: s1.id, title: s1.title, artist: s1.artist, genre: s1.genre, year: s1.year },
+        s2: { id: s2.id, title: s2.title, artist: s2.artist, genre: s2.genre, year: s2.year },
+        matchInfo: {
+          score: matchInfo.score,
+          sharedThemes: matchInfo.sharedThemes || [],
+          mood1: matchInfo.mood1 || '',
+          mood2: matchInfo.mood2 || ''
+        },
+        regenSeed: regenSeed || 0
+      })
+    });
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data; // { title, theme, en: {...}, de: {...} }
+  } catch(e) {
+    console.error('AI Lyrics error:', e);
+    // Fallback auf lokalen Engine
+    return generateFullLyrics(s1, s2, matchInfo, window._lastConcept || {});
+  }
+}
+
+function renderSongWriterLoading(s1, s2) {
+  document.getElementById('writer-song-names').textContent = '„' + s1.title + '" × „' + s2.title + '"';
+  const loadHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.875rem;padding:2.5rem 1rem;min-height:180px;">' +
+    '<div class="spinner" style="width:28px;height:28px;border-width:3px"></div>' +
+    '<div style="font-size:.82rem;color:var(--txm);text-align:center">KI analysiert „' + esc(s1.title) + '" und „' + esc(s2.title) + '"…<br><span style="font-size:.72rem;opacity:.7">Schreibt einen individuellen Text für dieses Paar</span></div>' +
+    '</div>';
+  document.getElementById('lyrics-en').innerHTML = loadHTML;
+  document.getElementById('lyrics-de').innerHTML = loadHTML;
+}
+
+// ─── COPY LYRICS ────────────────────────────────────────────────────────────────
+function copyLyrics() {
+  const full = `=== ENGLISH ===\n\n${_currentLyricsEN}\n\n=== DEUTSCH ===\n\n${_currentLyricsDE}`;
+  navigator.clipboard.writeText(full).then(() => {
+    const btn = document.getElementById('copyLyricsBtn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Kopiert!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Text kopieren';
+    }, 2500);
+  }).catch(() => {
+    // Fallback für Browser ohne Clipboard-API
+    const ta = document.createElement('textarea');
+    ta.value = full;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+// ─── REGENERATE LYRICS ──────────────────────────────────────────────────────
+function regenerateLyrics() {
+  if (!_lastS1 || !_lastS2 || !_lastMatchInfo || !_lastConcept) return;
+  const btn = document.getElementById('regenLyricsBtn');
+  if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
+  _lyricSeed++;
+  renderSongWriterLoading(_lastS1, _lastS2);
+  fetchAILyrics(_lastS1, _lastS2, _lastMatchInfo, _lyricSeed).then(lyrics => {
+    const blueprint = generateMusicBlueprint(_lastS1, _lastS2, _lastMatchInfo, _lastConcept);
+    renderSongWriter(lyrics, blueprint, _lastS1, _lastS2);
+    if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  }).catch(() => {
+    if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  });
+}
+
+// ─── FUSION HISTORY ─────────────────────────────────────────────────────────
+function addFusionHistory(s1, s2, info) {
+  const entry = { s1: s1, s2: s2, score: info.score, ts: Date.now() };
+  _fusionHistory = [entry].concat(_fusionHistory.filter(function(e) {
+    return !(e.s1.id === s1.id && e.s2.id === s2.id);
+  })).slice(0, 5);
+  renderFusionHistory();
+}
+
+function renderFusionHistory() {
+  const section = document.getElementById('fusionHistory');
+  const list = document.getElementById('fusionHistoryList');
+  if (!section || !list) return;
+  if (!_fusionHistory.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = _fusionHistory.map(function(e) {
+    const pct = Math.round(e.score * 100);
+    const gc1 = (typeof GC !== 'undefined' && GC[e.s1.genre]) ? GC[e.s1.genre] : '#a855f7';
+    const gc2 = (typeof GC !== 'undefined' && GC[e.s2.genre]) ? GC[e.s2.genre] : '#06b6d4';
+    const t1 = esc ? esc(e.s1.title) : e.s1.title;
+    const t2 = esc ? esc(e.s2.title) : e.s2.title;
+    return '<div class="fh-item" onclick="loadPair(' + e.s1.id + ',' + e.s2.id + ')">' +
+      '<span class="fh-score">' + pct + '%</span>' +
+      '<span class="fh-songs"><strong style="color:' + gc1 + '">' + t1 + '</strong> &times; <strong style="color:' + gc2 + '">' + t2 + '</strong></span>' +
+      '<span class="fh-replay">&#9654; Wiederholen</span>' +
+      '</div>';
+  }).join('');
+}
+
+// ─── LOAD RANDOM PAIRS ────────────────────────────────────────────────────────
+function loadRandomPairs() {
+  setTimeout(() => {
+    try {
+      const pairs = findBestPairs(ALL_SONGS, 6, 25);
+      renderRandomPairs(pairs);
+    } catch(e) {
+      document.getElementById('randomGrid').innerHTML =
+        '<div style="font-size:.78rem;color:var(--txm);padding:.5rem">Paare konnten nicht geladen werden.</div>';
+    }
+  }, 600);
+}
+
+function refreshRandomPairs() {
+  const btn = document.getElementById('refreshPairsBtn');
+  const grid = document.getElementById('randomGrid');
+  if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
+  grid.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>Neue Paare werden berechnet…</span></div>';
+  setTimeout(() => {
+    try {
+      // Zufällige Stichprobe aus ALL_SONGS für Abwechslung
+      const shuffled = [...ALL_SONGS].sort(() => Math.random() - 0.5);
+      const sample = shuffled.slice(0, Math.min(300, shuffled.length));
+      const pairs = findBestPairs(sample, 6, 20);
+      renderRandomPairs(pairs);
+    } catch(e) {
+      grid.innerHTML = '<div style="font-size:.78rem;color:var(--txm);padding:.5rem">Fehler beim Laden der Paare.</div>';
+    }
+    if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  }, 500);
+}
+
+function renderRandomPairs(pairs) {
+  const grid = document.getElementById('randomGrid');
+  if (!pairs || !pairs.length) {
+    grid.innerHTML = '<div style="font-size:.78rem;color:var(--txm)">Keine Paare gefunden.</div>';
+    return;
+  }
+  grid.innerHTML = pairs.map(p => {
+    const pct = Math.round(p.score * 100);
+    const c1 = GC[p.song1.genre] || '#a855f7';
+    const c2 = GC[p.song2.genre] || '#06b6d4';
+    const tags = (p.sharedThemes || []).slice(0,3).map(t =>
+      `<span class="rtag">${t}</span>`).join('');
+    return `<div class="rand-card" onclick="loadPair(${p.song1.id},${p.song2.id})">
+      <div class="rand-score">
+        <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%"></div></div>
+        <span class="score-pct">${pct}%</span>
+      </div>
+      <div class="rand-songs">
+        <span class="rand-song" style="color:${c1}">${esc(p.song1.title)}</span>
+        <span class="rand-x">×</span>
+        <span class="rand-song" style="color:${c2}">${esc(p.song2.title)}</span>
+      </div>
+      <div class="rand-by">${esc(p.song1.artist)} &amp; ${esc(p.song2.artist)}</div>
+      <div class="rand-tags">${tags}</div>
+    </div>`;
+  }).join('');
+}
+
+function loadPair(idA, idB) {
+  selectedA = ALL_SONGS.find(s => s.id === idA);
+  selectedB = ALL_SONGS.find(s => s.id === idB);
+  if (!selectedA || !selectedB) return;
+  updateDisplay('A', selectedA);
+  updateDisplay('B', selectedB);
+  document.getElementById('matchBtn').disabled = false;
+  document.getElementById('matchBtn').scrollIntoView({behavior:'smooth', block:'nearest'});
+  setTimeout(runMatch, 200);
+}
+
+// ─── GENERATOR STATE & DATA STORE ────────────────────────────────────────────────
+// Hier wird der Fusion-Prompt gespeichert wenn runMatch() läuft
+let _generatorData = null;
+let _generatorPromptOriginal = '';
+
+function storeGeneratorData(s1, s2, matchInfo, concept, blueprint, lyricsEN) {
+  // Baut einen vollständigen Musik-Prompt
+  const gc1 = s1.genre;
+  const gc2 = s2.genre;
+  const fusionGenre = blueprint.fusionGenre;
+  const bpm = blueprint.suggestedBPM;
+  const key = blueprint.suggestedKey;
+  const timeSig = blueprint.timeSignature;
+  const pct = Math.round(matchInfo.score * 100);
+  const mood = matchInfo.mood1;
+  const themes = (matchInfo.sharedThemes || []).slice(0,3).join(', ') || concept.mainTheme || 'emotion';
+  const energy = blueprint.dynamicCurve || '';
+  const instr = blueprint.instruments ? blueprint.instruments.slice(0,4).join(', ') : '';
+  const prodNote = blueprint.productionNotes || '';
+
+  // Prompt englisch (KI-Generatoren verstehen EN am besten)
+  const prompt = [
+    `${fusionGenre} song, ${bpm} BPM, key of ${key}, ${timeSig} time signature.`,
+    `Fusion of ${gc1} and ${gc2} styles inspired by "${s1.title}" by ${s1.artist} (${s1.year}) and "${s2.title}" by ${s2.artist} (${s2.year}).`,
+    `Mood: ${mood}. Themes: ${themes}. Compatibility score: ${pct}%.`,
+    instr ? `Instruments: ${instr}.` : '',
+    prodNote ? `Production style: ${prodNote}.` : '',
+    energy ? `Dynamic curve: ${energy}.` : '',
+    `Title: "${concept.fusionTitle}". Style blend: ${concept.styleBlend}.`,
+  ].filter(Boolean).join(' ');
+
+  _generatorPromptOriginal = prompt;
+  _generatorData = { s1, s2, matchInfo, concept, blueprint, prompt };
+}
+
+// ─── GENERATOR VIEW REFRESH ──────────────────────────────────────────────────────
+function refreshGeneratorView() {
+  const noData = document.getElementById('gen-no-data');
+  const badge = document.getElementById('gen-badge');
+  const badgeText = document.getElementById('gen-badge-text');
+  const textarea = document.getElementById('genPrompt');
+  const resetBtn = document.getElementById('promptResetBtn');
+  const tagRow = document.getElementById('promptTags');
+
+  if (!_generatorData) {
+    // Kein Fusion-Song analysiert
+    noData.style.display = 'flex';
+    badge.classList.remove('has-data');
+    badgeText.textContent = 'Noch kein Fusion-Song analysiert — gehe zu Song Fusion und analysiere zwei Songs';
+    textarea.value = '';
+    textarea.placeholder = 'Analysiere zuerst zwei Songs im Song Fusion Tab — der Prompt wird dann hier automatisch generiert...';
+    resetBtn.style.display = 'none';
+    tagRow.innerHTML = '';
+    return;
+  }
+
+  const { s1, s2, concept, blueprint } = _generatorData;
+  noData.style.display = 'none';
+  badge.classList.add('has-data');
+  badgeText.textContent = `✅ Fusion-Song bereit: „${s1.title}“ × „${s2.title}“ — ${blueprint.fusionGenre}, ${blueprint.suggestedBPM} BPM, ${blueprint.suggestedKey}`;
+  textarea.value = _generatorPromptOriginal;
+  resetBtn.style.display = 'inline-flex';
+
+  // Tag-Chips für schnelle Modifikationen
+  const tags = [
+    `+ instrumental`,
+    `+ with drums`,
+    `+ epic orchestral`,
+    `+ lofi version`,
+    `+ radio edit`,
+    `+ dark version`,
+    `+ uptempo remix`,
+    `+ acoustic version`,
+  ];
+  tagRow.innerHTML = tags.map(t =>
+    `<button class="prompt-tag" onclick="appendTag('${t}')">${t}</button>`
+  ).join('');
+}
+
+function appendTag(tag) {
+  const ta = document.getElementById('genPrompt');
+  ta.value = ta.value.replace(/\.$/, '').trimEnd() + '. ' + tag.replace(/^\+\s*/, '') + '.';
+  ta.focus();
+}
+
+function resetPrompt() {
+  const ta = document.getElementById('genPrompt');
+  ta.value = _generatorPromptOriginal;
+  ta.focus();
+}
+
+function copyPrompt() {
+  const ta = document.getElementById('genPrompt');
+  const text = ta.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('promptCopyBtn');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('done');
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Kopiert!';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Prompt kopieren';
+    }, 2500);
+  }).catch(() => {
+    ta.select();
+    document.execCommand('copy');
+  });
+}
+
+function openPlatform(name, e) {
+  // Kopiert Prompt automatisch beim Klick auf eine Plattform
+  const ta = document.getElementById('genPrompt');
+  const text = ta.value.trim();
+  if (text) {
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+  // Link öffnet normal via href target=_blank
+}
+</script>
+
+<footer style="position:absolute;bottom:6px;right:10px;font-size:.6rem;color:var(--txf);z-index:100;">
+  <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;opacity:.45">Created with Perplexity Computer</a>
+</footer>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Hirsch Music Hit Maker","description":"Hirsch Music Hit Maker – Song Fusion, Writer & Musik Generator","creator":{"@type":"SoftwareApplication","name":"Perplexity Computer","url":"https://www.perplexity.ai/computer"}}
+</script>
+
+<!-- ── UPDATE OVERLAY ─────────────────────────────────────────────────────── -->
+<div id="updateOverlay">
+  <div class="update-card">
+    <div class="update-icon">🦌</div>
+    <div class="update-title">Update verfügbar!</div>
+    <div class="update-version" id="update-version-badge">v1.0.0</div>
+    <div class="update-notes" id="update-notes">Neue Verbesserungen und Features sind verfügbar.</div>
+
+    <!-- Fortschrittsanzeige (versteckt bis Download startet) -->
+    <div class="update-progress-wrap" id="update-progress-wrap" style="display:none">
+      <div style="font-size:.78rem;color:var(--txm);margin-bottom:.25rem" id="update-progress-label">Wird heruntergeladen…</div>
+      <div class="update-progress-bar"><div class="update-progress-fill" id="update-progress-fill"></div></div>
+      <div class="update-progress-txt">
+        <span id="update-progress-bytes">0 MB / 0 MB</span>
+        <span id="update-progress-speed">0 MB/s</span>
+      </div>
+    </div>
+
+    <div class="update-actions">
+      <button class="btn-update-install" id="btn-install-update" onclick="installUpdate()">
+        ⬇ Jetzt installieren
+      </button>
+      <button class="btn-update-later" onclick="postponeUpdate()">
+        Später
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Update-Badge in Topbar (versteckt bis Update ready) -->
+<script>
+// ─── ELECTRON AUTO-UPDATE INTEGRATION ────────────────────────────────────────
+(function() {
+  if (!window.electronAPI) return; // Nur in Electron-App
+
+  const overlay  = document.getElementById('updateOverlay');
+  const vBadge   = document.getElementById('update-version-badge');
+  const notes    = document.getElementById('update-notes');
+  const progWrap = document.getElementById('update-progress-wrap');
+  const progFill = document.getElementById('update-progress-fill');
+  const progBytes= document.getElementById('update-progress-bytes');
+  const progSpd  = document.getElementById('update-progress-speed');
+  const progLbl  = document.getElementById('update-progress-label');
+  const btnInst  = document.getElementById('btn-install-update');
+
+  // App-Version in Topbar anzeigen
+  window.electronAPI.getVersion().then(v => {
+    const el = document.getElementById('appVersionBadge');
+    if (el) el.textContent = 'v' + v;
+  });
+
+  // Update verfügbar → Overlay zeigen
+  window.electronAPI.onUpdateAvailable(data => {
+    vBadge.textContent = 'v' + data.version;
+    notes.textContent  = data.releaseNotes || 'Neue Verbesserungen sind verfügbar.';
+    overlay.classList.add('visible');
+    btnInst.textContent = '⬇ Herunterladen & installieren';
+  });
+
+  // Download-Fortschritt
+  window.electronAPI.onUpdateProgress(data => {
+    progWrap.style.display = 'block';
+    progFill.style.width   = data.percent + '%';
+    progBytes.textContent  = data.transferred + ' / ' + data.total;
+    progSpd.textContent    = data.speed;
+    progLbl.textContent    = 'Wird heruntergeladen… ' + data.percent + '%';
+    btnInst.disabled = true;
+    btnInst.textContent = '⬇ ' + data.percent + '% — Bitte warten…';
+  });
+
+  // Update bereit zum Installieren
+  window.electronAPI.onUpdateReady(data => {
+    progLbl.textContent     = '✅ Download abgeschlossen!';
+    progFill.style.width    = '100%';
+    btnInst.disabled        = false;
+    btnInst.textContent     = '🔄 Jetzt neu starten & installieren';
+    vBadge.textContent      = 'v' + data.version + ' — Bereit';
+    // Update-Badge in Topbar
+    const badge = document.getElementById('topbarUpdateBadge');
+    if (badge) badge.classList.add('visible');
+  });
+
+  // Fehler
+  window.electronAPI.onUpdateError(data => {
+    overlay.classList.remove('visible');
+    console.warn('Update-Fehler:', data.message);
+  });
+
+  window.installUpdate  = () => window.electronAPI.installUpdate();
+  window.postponeUpdate = () => {
+    overlay.classList.remove('visible');
+    // Update-Badge zeigen damit User später installieren kann
+    const badge = document.getElementById('topbarUpdateBadge');
+    if (badge) badge.classList.add('visible');
+  };
+
+  window.reopenUpdateDialog = () => overlay.classList.add('visible');
+})();
+</script>
+</body>
+</html>
