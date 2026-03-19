@@ -1,3 +1,6 @@
-qa-*.png
-*.backup.js
-songs-data.js
+desktop/dist/
+desktop/node_modules/
+desktop/wine-hirsch/
+__pycache__/
+*.pyc
+.env
