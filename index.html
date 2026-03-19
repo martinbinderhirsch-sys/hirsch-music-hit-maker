@@ -1538,23 +1538,25 @@ function renderResultPanel(info, concept, s1, s2) {
   // ─── SONG WRITER & BLUEPRINT ───────────────────────────────────────────────
   _lastS1 = s1; _lastS2 = s2; _lastMatchInfo = info; _lastConcept = concept;
   _lyricSeed = 0;
-  const lyrics = generateFullLyrics(s1, s2, info, concept);
+  // Blueprint sofort rendern (lokal, kein API)
   const blueprint = generateMusicBlueprint(s1, s2, info, concept);
-  renderSongWriter(lyrics, blueprint, s1, s2);
   document.getElementById('writerPanel').style.display = 'block';
+  // KI-Lyrics asynchron laden
+  renderSongWriterLoading(s1, s2);
+  fetchAILyrics(s1, s2, info, 0).then(lyrics => {
+    renderSongWriter(lyrics, blueprint, s1, s2);
+    addFusionHistory(s1, s2, info);
+    if (typeof storeGeneratorData === 'function') {
+      storeGeneratorData(s1, s2, info, concept, blueprint, lyrics.en || {});
+    }
+  });
 
   // Smooth scroll zum Ergebnis
   setTimeout(() => {
     document.getElementById('resultPanel').scrollIntoView({behavior:'smooth', block:'start'});
   }, 120);
 
-  // History-Eintrag hinzufügen
-  addFusionHistory(s1, s2, info);
-
-  // ─── GENERATOR DATA STORE (für Musik Generator Tab)
-  if (typeof storeGeneratorData === 'function') {
-    storeGeneratorData(s1, s2, info, concept, blueprint, lyrics.en);
-  }
+  // Generator Data wird nach AI-Lyrics gespeichert (in fetchAILyrics.then)
 }
 
 // ─── RENDER SONG WRITER ─────────────────────────────────────────────────────────
@@ -1641,6 +1643,47 @@ function renderSongWriter(lyrics, blueprint, s1, s2) {
   document.getElementById('bp-prod').textContent = blueprint.productionNotes;
 }
 
+// ─── KI LYRICS API ───────────────────────────────────────────────────────────
+const API_BASE = '__PORT_5000__';
+
+async function fetchAILyrics(s1, s2, matchInfo, regenSeed) {
+  try {
+    const res = await fetch(API_BASE + '/api/generate-lyrics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        s1: { id: s1.id, title: s1.title, artist: s1.artist, genre: s1.genre, year: s1.year },
+        s2: { id: s2.id, title: s2.title, artist: s2.artist, genre: s2.genre, year: s2.year },
+        matchInfo: {
+          score: matchInfo.score,
+          sharedThemes: matchInfo.sharedThemes || [],
+          mood1: matchInfo.mood1 || '',
+          mood2: matchInfo.mood2 || ''
+        },
+        regenSeed: regenSeed || 0
+      })
+    });
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data; // { title, theme, en: {...}, de: {...} }
+  } catch(e) {
+    console.error('AI Lyrics error:', e);
+    // Fallback auf lokalen Engine
+    return generateFullLyrics(s1, s2, matchInfo, window._lastConcept || {});
+  }
+}
+
+function renderSongWriterLoading(s1, s2) {
+  document.getElementById('writer-song-names').textContent = '„' + s1.title + '" × „' + s2.title + '"';
+  const loadHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.875rem;padding:2.5rem 1rem;min-height:180px;">' +
+    '<div class="spinner" style="width:28px;height:28px;border-width:3px"></div>' +
+    '<div style="font-size:.82rem;color:var(--txm);text-align:center">KI analysiert „' + esc(s1.title) + '" und „' + esc(s2.title) + '"…<br><span style="font-size:.72rem;opacity:.7">Schreibt einen individuellen Text für dieses Paar</span></div>' +
+    '</div>';
+  document.getElementById('lyrics-en').innerHTML = loadHTML;
+  document.getElementById('lyrics-de').innerHTML = loadHTML;
+}
+
 // ─── COPY LYRICS ────────────────────────────────────────────────────────────────
 function copyLyrics() {
   const full = `=== ENGLISH ===\n\n${_currentLyricsEN}\n\n=== DEUTSCH ===\n\n${_currentLyricsDE}`;
@@ -1668,19 +1711,16 @@ function copyLyrics() {
 function regenerateLyrics() {
   if (!_lastS1 || !_lastS2 || !_lastMatchInfo || !_lastConcept) return;
   const btn = document.getElementById('regenLyricsBtn');
-  if (btn) btn.classList.add('spinning');
+  if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
   _lyricSeed++;
-  const conceptClone = Object.assign({}, _lastConcept, { _regenSeed: _lyricSeed });
-  setTimeout(() => {
-    try {
-      const lyrics = generateFullLyrics(_lastS1, _lastS2, _lastMatchInfo, conceptClone);
-      const blueprint = generateMusicBlueprint(_lastS1, _lastS2, _lastMatchInfo, conceptClone);
-      renderSongWriter(lyrics, blueprint, _lastS1, _lastS2);
-    } catch(e) {
-      console.error('Regen error:', e);
-    }
-    if (btn) btn.classList.remove('spinning');
-  }, 50);
+  renderSongWriterLoading(_lastS1, _lastS2);
+  fetchAILyrics(_lastS1, _lastS2, _lastMatchInfo, _lyricSeed).then(lyrics => {
+    const blueprint = generateMusicBlueprint(_lastS1, _lastS2, _lastMatchInfo, _lastConcept);
+    renderSongWriter(lyrics, blueprint, _lastS1, _lastS2);
+    if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  }).catch(() => {
+    if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  });
 }
 
 // ─── FUSION HISTORY ─────────────────────────────────────────────────────────
