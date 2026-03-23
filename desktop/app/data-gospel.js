@@ -501,4 +501,3 @@ const SONGS_GOSPEL = [
   { id: 7000, rank: 500, title: "Faithful to the End", artist: "Bethel Music", genre: "Gospel", year: 2018, album: "Victory" }
 ];
 
-export default SONGS_GOSPEL;

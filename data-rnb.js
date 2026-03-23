@@ -501,4 +501,3 @@ const SONGS_RNB = [
   { id: 6500, rank: 500, title: "Dance, Dance, Dance (Yowsah, Yowsah, Yowsah)", artist: "Chic", genre: "R&B", year: 1977, album: "Chic" }
 ];
 
-export default SONGS_RNB;

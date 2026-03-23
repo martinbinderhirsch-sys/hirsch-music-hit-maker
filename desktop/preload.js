@@ -1,12 +1,20 @@
 /**
  * Preload-Script: Sicherer Bridge zwischen Electron-Main und Renderer
- * Stellt der App nur erlaubte Funktionen zur Verfügung
  */
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Version abfragen
+  // Version
   getVersion: () => ipcRenderer.invoke('get-version'),
+
+  // API-Key (verschlüsselt auf Disk via safeStorage)
+  loadApiKey:   () => ipcRenderer.invoke('load-api-key'),
+  saveApiKey:   (key) => ipcRenderer.invoke('save-api-key', key),
+  deleteApiKey: () => ipcRenderer.invoke('delete-api-key'),
+
+  // Projects (Inbox + Versionen + History, JSON-Datei)
+  loadProjects: () => ipcRenderer.invoke('load-projects'),
+  saveProjects: (data) => ipcRenderer.invoke('save-projects', data),
 
   // Updates
   checkForUpdates: () => ipcRenderer.send('check-for-updates'),
@@ -14,12 +22,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   postponeUpdate:  () => ipcRenderer.send('postpone-update'),
 
   // Events empfangen
-  onUpdateAvailable: (cb) => ipcRenderer.on('update-available',       (_, data) => cb(data)),
-  onUpdateProgress:  (cb) => ipcRenderer.on('update-progress',        (_, data) => cb(data)),
-  onUpdateReady:     (cb) => ipcRenderer.on('update-ready',           (_, data) => cb(data)),
-  onUpdateError:     (cb) => ipcRenderer.on('update-error',           (_, data) => cb(data)),
-  onUpdateNotAvail:  (cb) => ipcRenderer.on('update-not-available-manual', (_, data) => cb(data)),
+  onUpdateAvailable: (cb) => ipcRenderer.on('update-available',            (_, d) => cb(d)),
+  onUpdateProgress:  (cb) => ipcRenderer.on('update-progress',             (_, d) => cb(d)),
+  onUpdateReady:     (cb) => ipcRenderer.on('update-ready',                (_, d) => cb(d)),
+  onUpdateError:     (cb) => ipcRenderer.on('update-error',                (_, d) => cb(d)),
+  onUpdateNotAvail:  (cb) => ipcRenderer.on('update-not-available-manual', (_, d) => cb(d)),
 
-  // Cleanup
-  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
+  removeAllListeners: (ch) => ipcRenderer.removeAllListeners(ch),
 });

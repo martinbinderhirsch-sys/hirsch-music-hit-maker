@@ -65,7 +65,13 @@ function decadeCompat(y1, y2) {
 }
 
 // ─── PROFIL BERECHNEN ───────────────────────────────────────────────────────
+// ─── PROFIL-CACHE: jedes Song-Profil wird nur einmal berechnet ──────────────
+const _profileCache = new Map();
+
 function buildProfile(song) {
+  const cacheKey = song.id != null ? song.id : (song.title + '|' + song.artist);
+  if (_profileCache.has(cacheKey)) return _profileCache.get(cacheKey);
+
   const base = GENRE_BASE[song.genre] || GENRE_BASE.Pop;
   const titleLow = (song.title + ' ' + (song.artist||'')).toLowerCase();
   const albumLow = (song.album||'').toLowerCase();
@@ -90,13 +96,15 @@ function buildProfile(song) {
   const yearBoost = song.year >= 2000 ? 0.5 : song.year >= 1985 ? 0.25 : 0;
   const energy = Math.min(10, base.energy + (themes.includes('party') ? 1 : 0) + (themes.includes('rebellion') ? 0.5 : 0) + yearBoost);
 
-  return {
+  const profile = {
     ...base,
     energy: Math.round(energy * 10) / 10,
     themes,
     mood,
     decade: Math.floor(song.year / 10) * 10,
   };
+  _profileCache.set(cacheKey, profile);
+  return profile;
 }
 
 // ─── MATCH SCORE BERECHNEN ──────────────────────────────────────────────────
@@ -293,7 +301,8 @@ function findTopMatches(sourceSong, allSongs, topN = 10, sampleSize = 500) {
 }
 
 // Findet die besten Genre-übergreifenden Paare aus einem kleinen Sample
-function findBestPairs(allSongs, topN = 5, samplePerGenre = 30) {
+// ─── findBestPairs: synchrone Version (für direkte Aufrufe) ─────────────────
+function findBestPairs(allSongs, topN = 5, samplePerGenre = 12) {
   const genres = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager','Classical','Jazz','Blues','Folk','R&B','Gospel','Latin','Reggae','World','Experimental'];
   let sample = [];
   genres.forEach(g => {
@@ -301,17 +310,66 @@ function findBestPairs(allSongs, topN = 5, samplePerGenre = 30) {
     sample = sample.concat(gs.sort(() => Math.random() - 0.5).slice(0, samplePerGenre));
   });
 
+  // Profile vorab cachen (einmalig)
+  sample.forEach(s => buildProfile(s));
+
   const pairs = [];
   for (let i = 0; i < sample.length; i++) {
     for (let j = i + 1; j < sample.length; j++) {
       if (sample[i].genre === sample[j].genre) continue; // nur Cross-Genre
       const info = matchScore(sample[i], sample[j]);
-      if (info.score > 0.72) {
+      if (info.score > 0.70) {
         pairs.push({ song1: sample[i], song2: sample[j], score: info.score, sharedThemes: info.sharedThemes, matchInfo: info });
       }
     }
   }
   return pairs.sort((a, b) => b.score - a.score).slice(0, topN);
+}
+
+// ─── findBestPairsAsync: non-blocking Version für Top-10 Panel ──────────────
+// Verarbeitet in 50er-Batches mit setTimeout(0) zwischen den Batches.
+// onDone(pairs) wird am Ende aufgerufen.
+function findBestPairsAsync(allSongs, topN, samplePerGenre, onDone) {
+  topN          = topN          || 10;
+  samplePerGenre = samplePerGenre || 12;
+
+  const genres = ['Rock','Pop','Hip-Hop','Metal','Country','EDM','Schlager','Classical','Jazz','Blues','Folk','R&B','Gospel','Latin','Reggae','World','Experimental'];
+  let sample = [];
+  genres.forEach(function(g) {
+    const gs = allSongs.filter(function(s) { return s.genre === g; });
+    const shuffled = gs.slice().sort(function() { return Math.random() - 0.5; });
+    sample = sample.concat(shuffled.slice(0, samplePerGenre));
+  });
+
+  // Profile vorab cachen (synchron, sehr schnell da Caching)
+  sample.forEach(function(s) { buildProfile(s); });
+
+  const pairs = [];
+  const n = sample.length;
+  let i = 0;
+
+  // Alle Paare für Zeile i berechnen, dann nächste Zeile
+  const BATCH_SIZE = 40; // Zeilen pro Batch
+  function processBatch() {
+    const end = Math.min(i + BATCH_SIZE, n);
+    for (; i < end; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (sample[i].genre === sample[j].genre) continue;
+        const info = matchScore(sample[i], sample[j]);
+        if (info.score > 0.70) {
+          pairs.push({ song1: sample[i], song2: sample[j], score: info.score, sharedThemes: info.sharedThemes, matchInfo: info });
+        }
+      }
+    }
+    if (i < n) {
+      setTimeout(processBatch, 0); // nächster Batch — UI-Thread bekommt Luft
+    } else {
+      // Fertig
+      const result = pairs.sort(function(a, b) { return b.score - a.score; }).slice(0, topN);
+      onDone(result);
+    }
+  }
+  processBatch();
 }
 
 
@@ -602,7 +660,7 @@ function buildSmartProfile(song) {
   const themeNarratives = {
     love:      { story: `A song about love — its beauty, its ache, the pull between two people`, imagery: ['longing', 'connection', 'heartbeat', 'touch'], emotion: 'the full weight of loving someone' },
     loss:      { story: `A song about loss — someone gone, something broken, the echo of what was`, imagery: ['empty spaces', 'echoes', 'what remains', 'the before and after'], emotion: 'grief that lives in the body' },
-    party:     { story: `A song about celebration — the freedom of a night that has no rules`, imagery: ['dancefloor', 'lights', 'crowd as one body', 'morning coming too soon'], emotion: 'the euphoria of complete release' },
+    party:     { story: `A song about celebration — the freedom of a night that has no rules`, imagery: ['dancefloor', 'lights', 'crowd as one body', 'morning coming too soon'], emotion: 'pure joy breaking through every wall' },
     rebellion: { story: `A song about fighting back — against a system, a rule, a ceiling someone else built`, imagery: ['raised fist', 'the wall', 'the crowd', 'the defiant voice'], emotion: 'righteous rage and pride' },
     journey:   { story: `A song about moving — physically or emotionally, leaving something behind, going somewhere new`, imagery: ['the open road', 'rearview mirror', 'horizon', 'what you carry'], emotion: 'the mixed fear and freedom of leaving' },
     nostalgia: { story: `A song that reaches back — to a time, a person, a version of yourself that lives only in memory`, imagery: ['old records', 'faded photographs', 'a place that changed', 'the feeling that was'], emotion: 'the sweet-sharp pain of remembering' },
